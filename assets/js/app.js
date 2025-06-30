@@ -1,5 +1,7 @@
 import tr from "./langs/locale.js"
+import router from "./router.js"
 
+// class that represents page
 export const app = new class {
     navigation = new class {
         setTab(tab) {
@@ -7,8 +9,46 @@ export const app = new class {
             u(`#status-bar a[data-tab="${tab}"]`).addClass('selected')
         }
     }
+    content_side = new class {
+        set(content = '') {
+            u('#app #page').html(content)
+        }
 
-    renderPage() {
+        reset() {
+            this.set('')
+        }
+    }
+    another_side = new class {
+        set(content = '') {
+            u('#app #side').html(content)
+        }
+
+        reset() {
+            this.set('')
+        }
+    }
+
+    constructor() {
+        this.main_template()
+
+        window.addEventListener("hashchange", async (event) => {
+            await router.route(event.newURL)
+        })
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            await router.route(location.href)
+        })
+    }
+
+    up() {
+        scrollTo(0, 0)
+    }
+
+    title(title) {
+        document.title = title + " - " + window.cfg['ui.name']
+    }
+
+    main_template() {
         u('#app').html(`
             <nav id="status-bar">
                 <a href="#about"><div id="home"></div></a>
@@ -24,21 +64,9 @@ export const app = new class {
         `)
 
         u('#app').on('click', '#to_up', (e) => {
-            scrollTo(0, 0)
+            this.up()
         })
     }
-
-    setSideContent(content = '') {
-        u('#app #side').html(content)
-    }
-
-    setContent(content = '') {
-        document.title = window.cfg['ui.name']
-
-        u('#app #page').html(content)
-    }
 }
-
-app.renderPage()
 
 export default app

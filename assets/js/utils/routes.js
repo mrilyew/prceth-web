@@ -21,12 +21,12 @@ export const routes = [
     {
         'route': 'exec',
         'class': (new ExecutableController),
-        'method': 'main'
+        'method': 'list'
     },
     {
         'route': 'execute',
         'class': (new ExecutableController),
-        'method': 'executePage'
+        'method': 'executable'
     },
 ]
 

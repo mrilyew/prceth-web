@@ -1,17 +1,19 @@
 import BaseController from "./BaseController.js"
 import router from "../router.js"
-import app from "../main.js"
+import app from "../app.js"
 import api from "../api.js"
 import Executable from "../models/Executable.js"
 import subparams from "../utils/subparams.js"
 import {escapeHtml, create_json_viewer} from "../utils/utils.js"
 import tr from "../langs/locale.js"
+import ExecutableViewModel from "../view_models/ExecutableViewModel.js"
+import ExecutableArgumentViewModel from "../view_models/ExecutableArgumentViewModel.js"
 
 const upper_categories = ["act", "extractor", "representation"]
 
 export class ExecutableController extends BaseController {
-    async main() {
-        const _ap = u(`
+    async list() {
+        const _u = u(`
             <div>
                 <div class="horizontal_mini_tabs"></div>
                 <div id="container_search">
@@ -21,56 +23,59 @@ export class ExecutableController extends BaseController {
             </div>
         `)
 
+        function drawList(container, list) {
+            list.forEach(el => {
+                container.append((new ExecutableViewModel).render(el))
+            })
+        }
+
         let current_tab = router.url.getParam('tab') ?? "act"
         if (!upper_categories.includes(current_tab)) {
             current_tab = "act"
         }
 
+        const executables_list = await Executable.getList(current_tab)
         upper_categories.forEach(exec_type => {
-            _ap.find(".horizontal_mini_tabs").append(`
+            _u.find(".horizontal_mini_tabs").append(`
                 <a data-tab="${exec_type}" href="#exec?tab=${exec_type}">${tr(exec_type + "s_tab")}</a>
             `)
 
             if (current_tab == exec_type) {
-                _ap.find(`.horizontal_mini_tabs a[data-tab="${current_tab}"]`).addClass("selected")
+                _u.find(`.horizontal_mini_tabs a[data-tab="${current_tab}"]`).addClass("selected")
             }
         })
 
-        const executables_list = await Executable.getList(current_tab)
+        drawList(_u.find("#container_items"), executables_list)
 
-        function __drawList(container, list) {
-            list.forEach(el => {
-                container.append(el.render())
-            })
-        }
+        app.content_side.set(_u.html())
+        app.title(tr("executables_tab"))
 
-        __drawList(_ap.find("#container_items"), executables_list)
-
-        app.setContent(_ap.html())
         u('#container_search #search_bar').nodes[0].focus()
         u('#container_search').on('input', '#search_bar', (e) => {
             const query = e.target.value
             const itms = executables_list.filter(el => el.data.class_name.toLowerCase().includes(query))
 
             u("#container_items").html('')
-            __drawList(u("#container_items"), itms)
+            drawList(u("#container_items"), itms)
         })
     }
 
-    async executePage() {
-        const exec_name = router.url.getParam('name')
-        const extr = await Executable.getFromName(exec_name)
-        const type = extr.sub
-        const category = extr.category
-        const name = extr.name
+    async executable() {
+        const executable_name = router.url.getParam('name')
+        const executable = await Executable.getFromName(executable_name)
+
+        const type = executable.sub
+        const category = executable.category
+        const name = executable.name
         const full_name = `${type}.${category}.${name}`
-        const _ap = u(`
+
+        const _u = u(`
             <div>
                 <div class="page-head">
                     <b>${escapeHtml(full_name)}</b>
                 </div>
                 <div class="page-subhead">
-                    <span>${escapeHtml(extr.docs.definition ?? "")}</span>
+                    <span>${escapeHtml(executable.docs.definition ?? "")}</span>
                 </div>
                 <div id="args"></div>
                 <div class="page-bottom">
@@ -79,15 +84,16 @@ export class ExecutableController extends BaseController {
             </div>
         `)
 
-        extr.args.forEach(arg => {
+        executable.args.forEach(arg => {
             if (arg.is_hidden) {
                 return
             }
 
-            _ap.find("#args").append(arg.render())
+            _u.find("#args").append((new ExecutableArgumentViewModel).render(arg, subparams[arg.type]))
         })
 
-        app.setContent(_ap.html())
+        app.content_side.set(_u.html())
+        app.title(escapeHtml(full_name))
 
         function collectArguments(nodes) {
             const vals = {}
@@ -101,7 +107,7 @@ export class ExecutableController extends BaseController {
         }
 
         u(".page-bottom").on('click', '#exec', async (e) => {
-            scrollTo(0, 0)
+            app.up()
 
             const itms = u('#args .argument_listitem')
             const args = collectArguments(itms.nodes)

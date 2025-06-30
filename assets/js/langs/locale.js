@@ -6,6 +6,7 @@ const langs = {
     'eng': eng
 }
 
+// Function for taking translation. Uses language from python config
 export function tr(string, ...args) {
     function fallback() {
         return "@" + string

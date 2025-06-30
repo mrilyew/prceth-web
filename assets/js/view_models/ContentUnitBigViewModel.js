@@ -1,7 +1,7 @@
 import {proc_strtr, escapeHtml} from "../utils/utils.js"
 
 class ContentUnitBigViewModel {
-    template(data) {
+    render(data) {
         return u(`
             <a href="#cu?uuids=${data.id}" class="content_unit_item">
                 <div class="content_unit_thumb">

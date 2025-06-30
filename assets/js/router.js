@@ -1,48 +1,38 @@
-import app from "./main.js"
+import app from "./app.js"
 import routes from "./utils/routes.js"
 import HashURL from "./utils/HashURL.js"
 
+// class that starts controller method
 export const router = new class {
     url = null
-    list = routes
 
     __findRoute(hash) {
-        let fnl = null
+        let result = null
 
-        this.list.forEach(item => {
+        routes.forEach(item => {
             if(item.route == hash) {
-                fnl = item
+                result = item
             }
         })
 
-        return fnl
+        return result
     }
 
     async route(path) {
-        const _url = new HashURL(path)
-        this.url = _url
-        const _hash = _url.getHash().replace('#', '')
-        let route = this.__findRoute(_hash)
+        this.url = new HashURL(path)
 
-        if (route == null) {
-            route = this.__findRoute('index')
-        }
+        const _hash = this.url.getHash().replace('#', '')
+        let route = this.__findRoute(_hash) ?? this.__findRoute('index') // finding route for hash in url
 
-        let controller = route.class
+        const controller = route.class
 
         app.navigation.setTab(_hash)
-        app.setSideContent('')
+        app.another_side.reset()
+
         controller.loader()
+
         await controller[route.method]()
     }
 }
-
-window.addEventListener("hashchange", async (event) => {
-    await router.route(event.newURL)
-})
-
-window.addEventListener("DOMContentLoaded", async () => {
-    await router.route(location.href)
-})
 
 export default router

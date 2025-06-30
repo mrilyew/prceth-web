@@ -1,6 +1,4 @@
 class Model {
-    render_class = null
-
     constructor(data) {
         this.data = data
     }
@@ -12,13 +10,6 @@ class Model {
         })
 
         return f
-    }
-
-    render(args) {
-        const data = this.data
-        const _cl = new this.render_class()
-
-        return _cl.template(data)
     }
 }
 

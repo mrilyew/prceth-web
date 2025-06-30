@@ -1,14 +1,44 @@
-import app from "../main.js"
-import BaseController from "./BaseController.js"
+import app from "../app.js"
 import router from "../router.js"
-import api from "../api.js"
+import BaseController from "./BaseController.js"
 import ContentUnit from "../models/ContentUnit.js"
 import {escapeHtml, create_json_viewer} from "../utils/utils.js"
+import ContentUnitSmallViewModel from "../view_models/ContentUnitSmallViewModel.js"
 import tr from "../langs/locale.js"
 
 export class ContentController extends BaseController {
     async main() {
-        const items = await this.__items()
+        let total_count, scrolled_count, last_offset = 0
+
+        const recieveItems = async (offset) => {
+            const response = await ContentUnit.search(100, offset)
+
+            total_count = response.total_count
+            scrolled_count = (scrolled_count ?? 0) + response.items.length
+
+            const last_item = response.items[response.items.length - 1]
+
+            if (last_item) {
+                last_offset = last_item.data.created
+                console.log(last_offset)
+            }
+
+            return response.items
+        }
+
+        const pushItems = (items, container) => {
+            items.forEach(itm => {
+                container.find("#container_items").append((new ContentUnitSmallViewModel).render(itm))
+            })
+
+            if (scrolled_count < total_count) {
+                container.find("#container_items").append(`
+                    <div class="show_more">Show next</div>    
+                `)
+            }
+        }
+
+        const items = await recieveItems(last_offset)
         const insert_node = u(`
             <div>
                 <div id="container_body">
@@ -17,46 +47,28 @@ export class ContentController extends BaseController {
             </div>
         `)
 
-        this.__push(items, insert_node)
+        pushItems(items, insert_node)
 
-        app.setContent(insert_node.html())
+        app.content_side.set(insert_node.html())
+        app.title(tr("content_tab"))
 
         u("#container_body").on("click", ".show_more", async (e) => {
+            const container = u(e.target).closest("#container_body")
             u(e.target).addClass('unclickable')
 
-            const new_items = await this.__items(this.last_offset)
-            const container = u(e.target).closest("#container_body")
+            const new_items = await recieveItems(last_offset)
 
             u(e.target).remove()
-            this.__push(new_items, container)
+
+            pushItems(new_items, container)
         })
-    }
-
-    __push(items, container) {
-        items.forEach(itm => {
-            container.find("#container_items").append(itm.render())
-        })
-
-        if (this.scrolled_count < this.total_count) {
-            container.find("#container_items").append(`
-                <div class="show_more">Show next</div>    
-            `)
-        }
-    }
-
-    async __items(offset = null) {
-        const response = await ContentUnit.search(100, offset)
-
-        this.total_count = response.total_count
-        this.scrolled_count = (this.scrolled_count ?? 0) + response.items.length
-
-        return response.items
     }
 
     async page() {
-        const ids = router.url.getParam('uuids')
-        const id_list = ids.split(',')
-        const units = await ContentUnit.fromIds(id_list)
+        const uuids = router.url.getParam('uuids')
+        const ids = uuids.split(',')
+        const units = await ContentUnit.fromIds(ids)
+
         const _u = u(`
             <div>
                 <div id="container_body">
@@ -82,7 +94,8 @@ export class ContentController extends BaseController {
             u("#side").append(jsonViewer)
         }
 
-        app.setContent(_u.html())
+        app.content_side.set(_u.html())
+        app.title(tr("content_units"))
     }
 }
 

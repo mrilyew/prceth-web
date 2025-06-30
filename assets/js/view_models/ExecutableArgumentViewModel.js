@@ -1,7 +1,9 @@
 import {proc_strtr, escapeHtml} from "../utils/utils.js"
 
 class ExecutableArgumentViewModel {
-    template(data, argument_class) {
+    render(i, argument_class) {
+        const data = i.data
+
         const _f = u(`
             <div class="argument_listitem" data-name="${escapeHtml(data.name)}">
                 <div class="argument_about">

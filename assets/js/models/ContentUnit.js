@@ -1,11 +1,7 @@
 import api from "../api.js"
-import ContentUnitBigViewModel from "../view_models/ContentUnitBigViewModel.js"
-import ContentUnitSmallViewModel from "../view_models/ContentUnitSmallViewModel.js"
 import Model from "../models/Model.js"
 
 export class ContentUnit extends Model {
-    render_class = ContentUnitSmallViewModel
-
     static async fromIds(ids) {
         const dl = await api.act({
             "i": "ContentUnits.GetById",

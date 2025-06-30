@@ -1,6 +1,8 @@
 const rus = {
     "__lang_name": "Rus",
 
+    "common_page": "Статистика",
+
     'statistics': "Статистика",
     'content_tab': "Содержимое",
     'executables_tab': "Выполняемые",
@@ -12,6 +14,7 @@ const rus = {
     'representations_tab': 'Репрезентации',
 
     "execute_button": "Выполнить",
+    "content_units": "Единицы содержимого",
 }
 
 export default rus

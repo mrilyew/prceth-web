@@ -1,8 +1,8 @@
-import app from "../main.js"
+import app from "../app.js"
 
 export class BaseController {
     loader() {
-        document.title = "..."
+        app.title('...')
     }
 }
 

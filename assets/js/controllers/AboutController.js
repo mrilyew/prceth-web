@@ -1,5 +1,5 @@
-import app from "../main.js"
 import BaseController from "./BaseController.js"
+import app from "../app.js"
 import api from "../api.js"
 import tr from "../langs/locale.js"
 
@@ -9,12 +9,13 @@ export class AboutController extends BaseController {
             "i": "App.Stat"
         })
 
-        app.setContent(`
+        app.content_side.set(`
             <div id="about_page" style="padding: 10px 10px;">
                 <b>${tr("statistics")}</b>
                 <p>${stat.payload.content_units.total_count} units</p>
             </div>
         `)
+        app.title(tr("common_page"))
     }
 }
 

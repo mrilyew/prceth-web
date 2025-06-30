@@ -1,15 +1,15 @@
 export const api = new class {
     async act(params = {}) {
-        const _url = new URL(location.href)
-        _url.pathname = '/api/act'
-
+        const request_url = new URL(location.href)
         const postData = new FormData()
+
+        request_url.pathname = '/api/act'
 
         Object.entries(params).forEach(n => {
             postData.set(n[0], n[1])
         })
 
-        let data = await fetch(_url, {
+        const data = await fetch(request_url, {
             method: 'POST',
             body: postData
         })

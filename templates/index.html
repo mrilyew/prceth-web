@@ -6,6 +6,7 @@
 
     <script src="{{ url_for('static', filename='js/node_modules/umbrellajs/umbrella.js') }}"></script>
     <script src="{{ url_for('static', filename='js/node_modules/@andypf/json-viewer/dist/iife/index.js') }}"></script>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
@@ -17,7 +18,7 @@
             "ui.lang": "{{ config.get("ui.lang") }}"
         }
     </script>
-    <script type="module" src="{{ url_for('static', filename='js/router.js') }}"></script>
-    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@ from app.App import app, config
 from resources.Consts import consts
 from flask import Flask, request, jsonify, render_template
 from repositories.ActsRepository import ActsRepository
+import traceback
 
 consts['context'] = 'flask'
 
@@ -21,6 +22,8 @@ if True:
         response = jsonify(json_obj)
         response.status_code = 400
         response.mimetype = "application/json"
+
+        print(traceback.format_exc())
 
         return response
 

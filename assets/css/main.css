@@ -205,7 +205,7 @@ input[type='button'] {
 .show_more {
     width: 100%;
     text-align: center;
-    padding: 15px 0px;
+    padding: 8px 0px;
     background: var(--status-active);
     cursor: pointer;
     user-select: none;
