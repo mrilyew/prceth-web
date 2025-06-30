@@ -4,7 +4,8 @@ import app from "../main.js"
 import api from "../api.js"
 import Executable from "../models/Executable.js"
 import subparams from "../utils/subparams.js"
-import escapeHtml from "../utils/utils.js"
+import {escapeHtml, create_json_viewer} from "../utils/utils.js"
+import tr from "../langs/locale.js"
 
 const upper_categories = ["act", "extractor", "representation"]
 
@@ -14,7 +15,7 @@ export class ExecutableController extends BaseController {
             <div>
                 <div class="horizontal_mini_tabs"></div>
                 <div id="container_search">
-                    <input placeholder="Search..." id="search_bar" type="search">
+                    <input placeholder="${tr("searches_by_data")}" id="search_bar" type="search">
                 </div>
                 <div id="container_items"></div>
             </div>
@@ -27,7 +28,7 @@ export class ExecutableController extends BaseController {
 
         upper_categories.forEach(exec_type => {
             _ap.find(".horizontal_mini_tabs").append(`
-                <a data-tab="${exec_type}" href="#exec?tab=${exec_type}">${exec_type}s</a>
+                <a data-tab="${exec_type}" href="#exec?tab=${exec_type}">${tr(exec_type + "s_tab")}</a>
             `)
 
             if (current_tab == exec_type) {
@@ -73,7 +74,7 @@ export class ExecutableController extends BaseController {
                 </div>
                 <div id="args"></div>
                 <div class="page-bottom">
-                    <input id="exec" type="button" value="Execute">
+                    <input id="exec" type="button" value="${tr("execute_button")}">
                 </div>
             </div>
         `)
@@ -108,13 +109,8 @@ export class ExecutableController extends BaseController {
             u("#side").html("")
 
             const res = await api.executable(type.slice(0, type.length - 1), `${category}.${name}`, args)
-            const jsonViewer = document.createElement("andypf-json-viewer")
+            const jsonViewer = create_json_viewer()
             jsonViewer.data = res
-            jsonViewer.expanded = true
-            jsonViewer.indent = 4
-            jsonViewer.expanded = 4
-            jsonViewer.showDataTypes = false
-            jsonViewer.showSize = false
 
             u("#side").append(jsonViewer)
         })

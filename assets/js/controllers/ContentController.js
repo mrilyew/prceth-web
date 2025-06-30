@@ -3,7 +3,8 @@ import BaseController from "./BaseController.js"
 import router from "../router.js"
 import api from "../api.js"
 import ContentUnit from "../models/ContentUnit.js"
-import escapeHtml from "../utils/utils.js"
+import {escapeHtml, create_json_viewer} from "../utils/utils.js"
+import tr from "../langs/locale.js"
 
 export class ContentController extends BaseController {
     async main() {
@@ -66,9 +67,20 @@ export class ContentController extends BaseController {
 
         units.forEach(unit => {
             _u.find("#container_items").append(`
-                <b>${escapeHtml(unit.data.display_name)}</b>
+                <div class="item_block">
+                    <b>${escapeHtml(unit.data.display_name)}</b>
+                </div>
             `)
         })
+
+        if (units.length == 1) {
+            u("#side").html("")
+
+            const jsonViewer = create_json_viewer()
+            jsonViewer.data = units[0].data.content
+
+            u("#side").append(jsonViewer)
+        }
 
         app.setContent(_u.html())
     }

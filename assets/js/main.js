@@ -1,3 +1,5 @@
+import tr from "./langs/locale.js"
+
 export const app = new class {
     navigation = new class {
         setTab(tab) {
@@ -10,8 +12,9 @@ export const app = new class {
         u('#app').html(`
             <nav id="status-bar">
                 <a href="#about"><div id="home"></div></a>
-                <a data-tab="content" class="tab" href="#content">Content</a>
-                <a data-tab="exec" class="tab" href="#exec">Executables</a>
+                <a data-tab="content" class="tab" href="#content">${tr("content_tab")}</a>
+                <a data-tab="exec" class="tab" href="#exec">${tr("executables_tab")}</a>
+                <a data-tab="execute" class="tab hidden">${tr("executable_single_tab")}</a>
             </nav>
             <div id="to_up"></div>
             <div id="container">

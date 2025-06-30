@@ -45,4 +45,16 @@ export function proc_strtr(str, length) {
     return newString + (str !== newString ? "…" : "")
 }
 
+export function create_json_viewer() {
+    const jsonViewer = document.createElement("andypf-json-viewer")
+
+    jsonViewer.expanded = true
+    jsonViewer.indent = 4
+    jsonViewer.expanded = 4
+    jsonViewer.showDataTypes = false
+    jsonViewer.showSize = false
+
+    return jsonViewer
+}
+
 export default proc_strtr

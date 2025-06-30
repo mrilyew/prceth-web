@@ -5,19 +5,29 @@ class ExecutableArgumentViewModel {
         const _f = u(`
             <div class="argument_listitem" data-name="${escapeHtml(data.name)}">
                 <div class="argument_about">
-                    <b>${proc_strtr(escapeHtml(data.name), 500)}</b>
+                    <div class="name"></div>
                 </div>
                 <div class="argument_value"></div>
             </div>
         `)
 
-        if (data.docs != null) {
+        const has_docs = data.docs != null
+        const has_described_name = has_docs && data.docs.name != null
+        const has_class = argument_class != null
+
+        if (has_described_name) {
+            _f.find(".argument_about .name").append(`<b>${escapeHtml(data.docs.name)}</b><b class="grayed">&nbsp;${proc_strtr(escapeHtml(data.name), 500)}</b>`)
+        } else {
+            _f.find(".argument_about .name").append(`<b>${proc_strtr(escapeHtml(data.name), 500)}</b>`)
+        }
+
+        if (has_docs) {
             _f.find('.argument_about').append(`
                 <p>${data.docs.definition ?? ''}</p>
             `)
         }
 
-        if (argument_class != null) {
+        if (has_class) {
             _f.find(".argument_value").append(argument_class.renderValue(data)).attr("data-type", data.type)
         }
 

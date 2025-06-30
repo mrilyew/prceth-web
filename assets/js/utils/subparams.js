@@ -102,7 +102,7 @@ export const subparams = {
             `)
 
             if (data.default != null) {
-                _u.html(escapeHtml(data.default))
+                _u.html(escapeHtml(JSON.stringify(data.default)))
             }
 
             if (data.assertion != null && data.assertion.not_null == true) {
@@ -116,8 +116,30 @@ export const subparams = {
             return node.querySelector('._val').value
         }
     },
+    'CsvArgument': new class {
+        renderValue(data) {
+            let _u = u(`
+                <input class="_val" type="text">
+            `)
+
+            if (data.default != null) {
+                data.default.forEach(itm => {
+                    _u.nodes[0].value += escapeHtml(itm) 
+                })
+            }
+
+            if (data.assertion != null && data.assertion.not_null == true) {
+                _u.attr("required", "true")
+            }
+
+            return _u
+        }
+
+        recieveValue(node) {
+            return node.querySelector('._val').value
+        }
+    }
 }
 subparams['ObjectArgument'] = subparams['JsonArgument']
-subparams['CsvArgument'] = subparams['JsonArgument']
 
 export default subparams
