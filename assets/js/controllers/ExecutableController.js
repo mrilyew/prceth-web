@@ -117,7 +117,7 @@ export class ExecutableController extends BaseController {
                 }
 
                 const _u = container.append((new ExecutableArgumentViewModel).render(arg, param_module))
-                param_module.post(arg.data, _u)
+                param_module.post(arg.data, _u.find(`.argument_listitem[data-name='${arg.name}']`))
             })
         }
 

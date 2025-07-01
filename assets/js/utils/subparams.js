@@ -26,8 +26,8 @@ export const subparams = {
             }
 
             if (data.default != null) {
-                if (data.is_long == true) {
-                    _u.attr("default", data.default)
+                if (data.is_long != true) {
+                    _u.attr("value", data.default)
                 } else {
                     _u.html(escapeHtml(data.default))
                 }
@@ -35,7 +35,6 @@ export const subparams = {
 
             return _u
         }
-
     },
     'IntArgument': new class extends SubArgument {
         renderValue(data) {
