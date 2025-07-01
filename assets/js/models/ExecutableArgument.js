@@ -27,6 +27,10 @@ class ExecutableArgument extends Model {
     get is_hidden() {
         return this.data.hidden == true
     }
+
+    get is_required() {
+        return this.data.assertion != null && this.data.assertion.not_null == true
+    }
 }
 
 export default ExecutableArgument

@@ -1,0 +1,86 @@
+#to_up {
+    width: 40px;
+    top: 40px;
+    position: fixed;
+    height: calc(100vh - 40px);
+    cursor: s-resize;
+}
+
+#status-bar {
+    background: var(--head);
+    border-top: 1px solid var(--text);
+    border-bottom: 1px solid var(--status-border);
+    color: var(--status-color);
+    height: 40px;
+    user-select: none;
+
+    display: flex;
+}
+
+#status-bar .tab {
+    padding: 0px 10px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--status-border);
+    color: var(--status-border);
+}
+
+#status-bar .tab.hidden {
+    display: none;
+}
+
+#status-bar .tab.selected {
+    background: var(--back);
+    color: var(--status-border);
+    margin-top: 2px;
+}
+
+#status-bar .tab.hidden.selected {
+    display: flex;
+}
+
+#status-bar .tab:hover {
+    background: var(--head-lighter);
+}
+
+#status-bar #home {
+    width: 40px;
+    height: 100%;
+    background: #FFCC00;
+    border-right: 1px solid black;
+}
+
+#page {
+    min-width: 500px;
+    width: 40%;
+    border: 1px solid var(--border-color);
+    border-top: unset;
+    border-bottom: unset;
+}
+
+#page .between {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+#container {
+    min-height: 500px;
+    margin: 0px 40px;
+    display: flex;
+    flex-direction: row;
+}
+
+.page-head {
+    background: var(--head);
+}
+
+.page-head, .page-subhead {
+    padding: 10px 8px;
+}
+
+.page-bottom #exec {
+    height: 40px;
+    width: 100%;
+}

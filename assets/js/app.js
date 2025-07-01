@@ -50,7 +50,7 @@ export const app = new class {
 
     main_template() {
         u('#app').html(`
-            <nav id="status-bar">
+            <nav id="status-bar" class="volume">
                 <a href="#about"><div id="home"></div></a>
                 <a data-tab="content" class="tab" href="#content">${tr("content_tab")}</a>
                 <a data-tab="exec" class="tab" href="#exec">${tr("executables_tab")}</a>

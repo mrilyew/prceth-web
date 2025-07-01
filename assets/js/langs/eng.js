@@ -3,6 +3,7 @@ const eng = {
 
     "common_page": "Index",
 
+    'all': "All",
     'statistics': "Statistics",
     'content_tab': "Content",
     'executables_tab': "Executables",

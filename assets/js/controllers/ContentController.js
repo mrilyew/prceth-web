@@ -20,7 +20,6 @@ export class ContentController extends BaseController {
 
             if (last_item) {
                 last_offset = last_item.data.created
-                console.log(last_offset)
             }
 
             return response.items
@@ -28,11 +27,11 @@ export class ContentController extends BaseController {
 
         const pushItems = (items, container) => {
             items.forEach(itm => {
-                container.find("#container_items").append((new ContentUnitSmallViewModel).render(itm))
+                container.find(".container_items").append((new ContentUnitSmallViewModel).render(itm))
             })
 
             if (scrolled_count < total_count) {
-                container.find("#container_items").append(`
+                container.find(".container_items").append(`
                     <div class="show_more">Show next</div>    
                 `)
             }
@@ -42,7 +41,7 @@ export class ContentController extends BaseController {
         const insert_node = u(`
             <div>
                 <div id="container_body">
-                    <div id="container_items"></div>
+                    <div class="container_items"></div>
                 </div>
             </div>
         `)
@@ -72,13 +71,13 @@ export class ContentController extends BaseController {
         const _u = u(`
             <div>
                 <div id="container_body">
-                    <div id="container_items"></div>
+                    <div class="container_items"></div>
                 </div>
             </div>
         `)
 
         units.forEach(unit => {
-            _u.find("#container_items").append(`
+            _u.find(".container_items").append(`
                 <div class="item_block">
                     <b>${escapeHtml(unit.data.display_name)}</b>
                 </div>

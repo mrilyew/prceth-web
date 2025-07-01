@@ -1,7 +1,19 @@
 import {proc_strtr, escapeHtml} from "./utils.js"
 
+class SubArgument {
+    recieveValue(node) {
+        return node.querySelector('._val').value
+    }
+
+    focus(node) {
+        return node.querySelector('._val').focus()
+    }
+
+    post(data, node) {}
+}
+
 export const subparams = {
-    'StringArgument': new class {
+    'StringArgument': new class extends SubArgument {
         renderValue(data) {
             let _u = u(`
                 <input class="_val" type="text">
@@ -21,18 +33,11 @@ export const subparams = {
                 }
             }
 
-            if (data.assertion != null && data.assertion.not_null == true) {
-                _u.attr("required", "true")
-            }
-
             return _u
         }
 
-        recieveValue(node) {
-            return node.querySelector('._val').value
-        }
     },
-    'IntArgument': new class {
+    'IntArgument': new class extends SubArgument {
         renderValue(data) {
             const _u = u(`
                 <input class="_val" type="number">
@@ -44,37 +49,47 @@ export const subparams = {
 
             return _u
         }
+    },
+    'FloatArgument': new class extends SubArgument {
+        renderValue(data) {
+            const _u = u(`
+                <input class="_val" step="0.01" type="number">
+            `)
 
-        recieveValue(node) {
-            return node.querySelector('._val').value
+            if (data.default != null) {
+                _u.attr("value", data.default)
+            }
+
+            return _u
         }
     },
-    'LimitedArgument': new class {
+    'LimitedArgument': new class extends SubArgument {
         renderValue(data) {
             let _u = u(`
-                <select class="_val"></select>
+                <div class="_val"></div>
             `)
 
             data.values.forEach(itm => {
-                _u.append(`<option value="${escapeHtml(itm)}">${escapeHtml(itm)}</option>`)
+                let name = escapeHtml(itm)
+                if (data.docs && data.docs['values'] && data.docs.values[itm]) {
+                    name = data.docs.values[itm]
+                }
+
+                _u.append(`<label class="block_label"><input type="radio" name="${data.name}" value="${escapeHtml(itm)}">${name}</label>`)
             })
 
             if (data.default != null) {
-                _u.attr("default", data.default)
-            }
-
-            if (data.assertion != null && data.assertion.not_null == true) {
-                _u.attr("required", "true")
+                _u.find(`.block_label input[value='${escapeHtml(data.default)}']`).attr("checked", "true")
             }
 
             return _u
         }
 
         recieveValue(node) {
-            return node.querySelector('._val').value
+            return node.querySelector('._val input:checked').value
         }
     },
-    'BooleanArgument': new class {
+    'BooleanArgument': new class extends SubArgument {
         renderValue(data) {
             let _u = u(`
                 <input type="checkbox" class="_val">
@@ -84,10 +99,6 @@ export const subparams = {
                 _u.attr("checked", "")
             }
 
-            if (data.assertion != null && data.assertion.not_null == true) {
-                _u.attr("required", "true")
-            }
-
             return _u
         }
 
@@ -95,7 +106,7 @@ export const subparams = {
             return Number(node.querySelector('._val').checked == true)
         }
     },
-    'JsonArgument': new class {
+    'JsonArgument': new class extends SubArgument {
         renderValue(data) {
             let _u = u(`
                 <textarea class="_val"></textarea>
@@ -105,41 +116,60 @@ export const subparams = {
                 _u.html(escapeHtml(JSON.stringify(data.default)))
             }
 
-            if (data.assertion != null && data.assertion.not_null == true) {
-                _u.attr("required", "true")
-            }
-
             return _u
-        }
-
-        recieveValue(node) {
-            return node.querySelector('._val').value
         }
     },
-    'CsvArgument': new class {
+    'CsvArgument': new class extends SubArgument {
         renderValue(data) {
             let _u = u(`
-                <input class="_val" type="text">
+                <div>
+                    <div class="flex" style="gap: 7px;">
+                        <div style="gap: 7px;" class="column wide _val _items"></div>
+                        <input type="button" class="fit _add_icon" value="+">
+                    </div>
+                </div>
             `)
-
-            if (data.default != null) {
-                data.default.forEach(itm => {
-                    _u.nodes[0].value += escapeHtml(itm) 
-                })
-            }
-
-            if (data.assertion != null && data.assertion.not_null == true) {
-                _u.attr("required", "true")
-            }
 
             return _u
         }
 
+        post(data, node) {
+            const addItem = (preset) => {
+                node.find('._items').append(
+                    `<input type="text" value="${escapeHtml(preset)}">`
+                )
+            }
+
+            const _default = data.default ?? ['']
+            _default.forEach(item => {
+                addItem(item)
+            })
+
+            u(node).on('click', '._add_icon', (e) => {
+                addItem('')
+            })
+
+            u(node).find(".argument_value").on('keyup', "input[type='text']", (e) => {
+                if (e.key == 'Backspace' && e.target.value.length == 0) {
+                    if (e.target.previousSibling) {
+                        e.target.previousSibling.focus()
+                        u(e.target).remove()
+                    }
+                }
+            })
+        }
+
         recieveValue(node) {
-            return node.querySelector('._val').value
+            const vals = []
+            node.querySelectorAll(".argument_value input[type='text']").forEach(el => {
+                vals.push(el.value)
+            })
+
+            return vals
         }
     }
 }
+
 subparams['ObjectArgument'] = subparams['JsonArgument']
 
 export default subparams

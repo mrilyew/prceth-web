@@ -3,6 +3,7 @@ const rus = {
 
     "common_page": "Статистика",
 
+    'all': "Все",
     'statistics': "Статистика",
     'content_tab': "Содержимое",
     'executables_tab': "Выполняемые",
