@@ -1,4 +1,5 @@
 import {proc_strtr, escapeHtml} from "./utils.js"
+import tr from "../langs/locale.js"
 
 class SubArgument {
     recieveValue(node) {
@@ -31,6 +32,10 @@ export const subparams = {
                 } else {
                     _u.html(escapeHtml(data.default))
                 }
+            }
+
+            if (data.env_property != null) {
+                _u.attr("placeholder", tr("content_will_be_set_from_env", escapeHtml(data.env_property)))
             }
 
             return _u
@@ -164,7 +169,7 @@ export const subparams = {
                 vals.push(el.value)
             })
 
-            return vals
+            return JSON.stringify(vals)
         }
     }
 }

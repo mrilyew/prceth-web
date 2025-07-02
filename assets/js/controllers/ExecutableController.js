@@ -10,11 +10,13 @@ import ExecutableViewModel from "../view_models/ExecutableViewModel.js"
 import ExecutableArgumentViewModel from "../view_models/ExecutableArgumentViewModel.js"
 
 const upper_categories = ["act", "extractor", "representation"]
+const createable = ["extractor", "representation"]
 
 export class ExecutableController extends BaseController {
     async list() {
         const _u = u(`
             <div>
+                <div class="upper_note"></div>
                 <div class="horizontal_mini_tabs volume"></div>
                 <div id="container_search">
                     <input placeholder="${tr("searches_by_data")}" id="search_bar" type="search">
@@ -22,6 +24,9 @@ export class ExecutableController extends BaseController {
                 <div class="container_items"></div>
             </div>
         `)
+        const context = router.url.getParam('cx') ?? null
+        const default_for_context = context != "add" ? "act" : "representation"
+        const selected_tab = router.url.getParam('tab')
 
         function drawList(container, list) {
             const categories = []
@@ -31,6 +36,7 @@ export class ExecutableController extends BaseController {
                 }
             })
 
+            // creating subcategories
             categories.forEach(cat => {
                 container.append(`
                     <div data-cat="${escapeHtml(cat)}" class="category">
@@ -40,28 +46,49 @@ export class ExecutableController extends BaseController {
                 `)
                 list.forEach(el => {
                     if (el.data.category == cat) {
-                        container.find(`.category[data-cat='${escapeHtml(cat)}'] .category_items`).append((new ExecutableViewModel).render(el))
+                        container.find(`.category[data-cat='${escapeHtml(cat)}'] .category_items`).append(
+                            (new ExecutableViewModel).render(el, {
+                                "context": context
+                            }
+                        ))
                     }
                 })
             })
         }
 
-        let current_tab = router.url.getParam('tab') ?? "act"
+        let current_tab = selected_tab ?? default_for_context
         if (!upper_categories.includes(current_tab)) {
-            current_tab = "act"
+            current_tab = default_for_context
         }
 
-        const executables_list = await Executable.getList(current_tab)
         upper_categories.forEach(exec_type => {
-            _u.find(".horizontal_mini_tabs").append(`
+            if (context == "add" && !createable.includes(exec_type)) {
+                return
+            }
+            
+            const add_this = u(`
                 <a data-tab="${exec_type}" href="#exec?tab=${exec_type}">${tr(exec_type + "s_tab")}</a>
             `)
 
+            if (context == "add") {
+                add_this.attr("href", `#exec?cx=${context}&tab=${exec_type}`)
+            }
+
+            _u.find(".horizontal_mini_tabs").append(add_this)
             if (current_tab == exec_type) {
                 _u.find(`.horizontal_mini_tabs a[data-tab="${current_tab}"]`).addClass("selected")
             }
         })
 
+        if (context == "add") {
+            _u.find(".upper_note").append(`
+                <p>${tr("select_what_we_will_execute")}</p>
+            `)
+        } else {
+            _u.find(".upper_note").remove()
+        }
+
+        const executables_list = await Executable.getList(current_tab)
         drawList(_u.find(".container_items"), executables_list)
 
         app.content_side.set(_u.html())
@@ -84,18 +111,19 @@ export class ExecutableController extends BaseController {
         const type = executable.sub
         const category = executable.category
         const name = executable.name
-        const full_name = `${type}.${category}.${name}`
         const variants = executable.data.variants
+        const docs = executable.data['docs']
+        let full_name = `${type}.${category}.${name}`
 
         const _u = u(`
             <div>
                 <div class="between">
                     <div>
                         <div class="page-head">
-                            <b>${escapeHtml(full_name)}</b>
+                            <b>${escapeHtml(docs.name ?? full_name)}</b>
                         </div>
                         <div class="page-subhead">
-                            <span>${escapeHtml(executable.docs.definition ?? "")}</span>
+                            <span>${escapeHtml(docs.definition ?? "")}</span>
                         </div>
                         <div id="addit"></div>
                         <div id="args"></div>
@@ -215,6 +243,20 @@ export class ExecutableController extends BaseController {
 
             u("#side").append(jsonViewer)
         })
+    }
+
+    async stat() {
+        const stat = await api.act({
+            "i": "App.Stat"
+        })
+
+        app.content_side.set(`
+            <div id="about_page" style="padding: 10px 10px;">
+                <b>${tr("statistics")}</b>
+                <p>${stat.payload.content_units.total_count} units</p>
+            </div>
+        `)
+        app.title(tr("statistics"))
     }
 }
 

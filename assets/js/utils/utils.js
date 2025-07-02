@@ -57,4 +57,23 @@ export function create_json_viewer() {
     return jsonViewer
 }
 
-export default proc_strtr
+export function random_int(min, max) {
+    return Math.round(Math.random() * (max - min) + min)
+}
+
+export function array_splice(array, key)
+{
+    let resultArray = [];
+
+    for(let i = 0; i < array.length; i++){
+        if(i != key){
+            resultArray.push(array[i]);
+        }
+    }
+
+    return resultArray;
+}
+
+export function nthing() {}
+
+export default nthing

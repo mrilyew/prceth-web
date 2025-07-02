@@ -1,7 +1,12 @@
+import MessageBox from "./utils/MessageBox.js"
+import tr from "./langs/locale.js"
+import { escapeHtml } from "./utils/utils.js"
+
 export const api = new class {
     async act(params = {}) {
         const request_url = new URL(location.href)
         const postData = new FormData()
+        let data = null
 
         request_url.pathname = '/api/act'
 
@@ -9,12 +14,22 @@ export const api = new class {
             postData.set(n[0], n[1])
         })
 
-        const data = await fetch(request_url, {
-            method: 'POST',
-            body: postData
-        })
+        try {
+            data = await fetch(request_url, {
+                method: 'POST',
+                body: postData
+            })
 
-        return await data.json()
+            return await data.json()
+        } catch(e) {
+            const msg = new MessageBox({
+                title: tr("exception_title"),
+                body: tr("exception_api_description", escapeHtml(e)),
+                buttons: ['ok'],
+                callbacks: [() => {}],
+            })
+            throw e
+        }
     }
 
     async executable(type, name, args) {

@@ -9,6 +9,11 @@ export const routes = [
         'method': 'main'
     },
     {
+        'route': 'stat',
+        'class': (new ExecutableController),
+        'method': 'stat'
+    },
+    {
         'route': 'content',
         'class': (new ContentController),
         'method': 'main'
@@ -27,6 +32,11 @@ export const routes = [
         'route': 'execute',
         'class': (new ExecutableController),
         'method': 'executable'
+    },
+    {
+        'route': 'test',
+        'class': (new AboutController),
+        'method': 'test'
     },
 ]
 

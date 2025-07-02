@@ -41,7 +41,7 @@ input[type='search'],
 input[type='text'],
 input[type="number"] {
     width: 100%;
-    padding: 2px 3px;
+    padding: 5px 3px;
     box-sizing: border-box;
 }
 
@@ -67,6 +67,12 @@ select {
 
 input[type='button'] {
     cursor: pointer;
+    padding: 5px 10px;
+}
+
+input[type='button'].active {
+    background: var(--head);
+    border: 1px solid var(--status-border);
 }
 
 .flex {
