@@ -128,7 +128,7 @@ export const subparams = {
             let _u = u(`
                 <div>
                     <div class="flex" style="gap: 7px;">
-                        <div style="gap: 7px;" class="column wide _val _items"></div>
+                        <div style="gap: 7px;" class="column wide _items"></div>
                         <input type="button" class="fit _add_icon" value="+">
                     </div>
                 </div>
@@ -136,12 +136,18 @@ export const subparams = {
 
             return _u
         }
-
         post(data, node) {
             const addItem = (preset) => {
-                node.find('._items').append(
-                    `<input type="text" value="${escapeHtml(preset)}">`
-                )
+                const arg_type = data.argument_type
+                const subparam = subparams[arg_type]
+
+                if (!subparam) {
+                    node.find('._items').append(
+                        `<input class="_val" type="text" value="${escapeHtml(preset)}">`
+                    )
+                } else {
+                    node.find('._items').append(subparam.renderValue({}))
+                }
             }
 
             const _default = data.default ?? ['']
@@ -166,8 +172,14 @@ export const subparams = {
         recieveValue(node) {
             const vals = []
             node.querySelectorAll(".argument_value input[type='text']").forEach(el => {
-                vals.push(el.value)
+                if (el.value != "") {
+                    vals.push(el.value)
+                }
             })
+
+            if (vals.length == 0) {
+                return undefined
+            }
 
             return JSON.stringify(vals)
         }

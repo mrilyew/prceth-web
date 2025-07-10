@@ -4,7 +4,7 @@ import app from "../app.js"
 import api from "../api.js"
 import Executable from "../models/Executable.js"
 import subparams from "../utils/subparams.js"
-import {escapeHtml, create_json_viewer} from "../utils/utils.js"
+import {create_json_viewer} from "../utils/utils.js"
 import tr from "../langs/locale.js"
 import ExecutableViewModel from "../view_models/ExecutableViewModel.js"
 import ExecutableArgumentViewModel from "../view_models/ExecutableArgumentViewModel.js"
@@ -39,14 +39,14 @@ export class ExecutableController extends BaseController {
             // creating subcategories
             categories.forEach(cat => {
                 container.append(`
-                    <div data-cat="${escapeHtml(cat)}" class="category">
-                        <div class="category_name">${escapeHtml(cat)}</div>
+                    <div data-cat="${DOMPurify.sanitize(cat)}" class="category">
+                        <div class="category_name">${DOMPurify.sanitize(cat)}</div>
                         <div class="category_items"></div>
                     </div>
                 `)
                 list.forEach(el => {
                     if (el.data.category == cat) {
-                        container.find(`.category[data-cat='${escapeHtml(cat)}'] .category_items`).append(
+                        container.find(`.category[data-cat='${DOMPurify.sanitize(cat)}'] .category_items`).append(
                             (new ExecutableViewModel).render(el, {
                                 "context": context
                             }
@@ -120,10 +120,10 @@ export class ExecutableController extends BaseController {
                 <div class="between">
                     <div>
                         <div class="page-head">
-                            <b>${escapeHtml(docs.name ?? full_name)}</b>
+                            <b>${DOMPurify.sanitize(docs.name ?? full_name)}</b>
                         </div>
                         <div class="page-subhead">
-                            <span>${escapeHtml(docs.definition ?? "")}</span>
+                            <span>${DOMPurify.sanitize(docs.definition ?? "")}</span>
                         </div>
                         <div id="addit"></div>
                         <div id="args"></div>
@@ -160,7 +160,7 @@ export class ExecutableController extends BaseController {
 
             variants.forEach(variant => {
                 _u.find("#addit .horizontal_sub_tabs").append(`
-                    <a data-tab="${index}">${escapeHtml(variant.name)}</a>
+                    <a data-tab="${index}">${DOMPurify.sanitize(variant.name)}</a>
                 `)
 
                 index+=1
@@ -168,7 +168,7 @@ export class ExecutableController extends BaseController {
         }
 
         app.content_side.set(_u.html())
-        app.title(escapeHtml(full_name))
+        app.title(DOMPurify.sanitize(full_name))
 
         putArgs(u('#args'), executable.args)
 
@@ -187,8 +187,9 @@ export class ExecutableController extends BaseController {
                     }
                 }
 
-                vals[nd.dataset.name] = value
-                
+                if (value != undefined) {
+                    vals[nd.dataset.name] = value
+                }
             })
 
             return vals

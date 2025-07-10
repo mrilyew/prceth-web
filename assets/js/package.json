@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@andypf/json-viewer": "^2.1.10",
+    "dompurify": "^3.2.6",
     "umbrellajs": "^3.3.3"
   }
 }

@@ -1,6 +1,5 @@
 import MessageBox from "./utils/MessageBox.js"
 import tr from "./langs/locale.js"
-import { escapeHtml } from "./utils/utils.js"
 
 export const api = new class {
     async act(params = {}) {
@@ -24,7 +23,7 @@ export const api = new class {
         } catch(e) {
             const msg = new MessageBox({
                 title: tr("exception_title"),
-                body: tr("exception_api_description", escapeHtml(e)),
+                body: tr("exception_api_description", DOMPurify.sanitize(e)),
                 buttons: ['ok'],
                 callbacks: [() => {}],
             })

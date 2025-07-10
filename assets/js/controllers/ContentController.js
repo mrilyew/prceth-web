@@ -2,7 +2,7 @@ import app from "../app.js"
 import router from "../router.js"
 import BaseController from "./BaseController.js"
 import ContentUnit from "../models/ContentUnit.js"
-import {escapeHtml, create_json_viewer} from "../utils/utils.js"
+import {create_json_viewer} from "../utils/utils.js"
 import ContentUnitSmallViewModel from "../view_models/ContentUnitSmallViewModel.js"
 import tr from "../langs/locale.js"
 
@@ -79,7 +79,7 @@ export class ContentController extends BaseController {
         units.forEach(unit => {
             _u.find(".container_items").append(`
                 <div class="item_block">
-                    <b>${escapeHtml(unit.data.display_name)}</b>
+                    <b>${DOMPurify.sanitize(unit.data.display_name)}</b>
                 </div>
             `)
         })

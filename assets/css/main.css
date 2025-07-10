@@ -41,7 +41,7 @@ input[type='search'],
 input[type='text'],
 input[type="number"] {
     width: 100%;
-    padding: 5px 3px;
+    padding: 5px 10px;
     box-sizing: border-box;
 }
 
@@ -52,11 +52,14 @@ input[type='radio'] {
 
 textarea {
     width: 100%;
-    padding: 2px 3px;
+    padding: 5px 10px;
     box-sizing: border-box;
     resize: vertical;
     min-height: 120px;
     max-height: 330px;
+
+    font-size: unset;
+    font-family: unset;
 }
 
 select {
