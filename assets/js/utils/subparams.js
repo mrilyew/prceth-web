@@ -146,7 +146,7 @@ export const subparams = {
                         `<input class="_val" type="text" value="${escapeHtml(preset)}">`
                     )
                 } else {
-                    node.find('._items').append(subparam.renderValue({}))
+                    node.find('._items').append(subparam.renderValue(data))
                 }
             }
 

@@ -97,7 +97,7 @@ export class ExecutableController extends BaseController {
         u('#container_search #search_bar').nodes[0].focus()
         u('#container_search').on('input', '#search_bar', (e) => {
             const query = e.target.value
-            const itms = executables_list.filter(el => el.data.class_name.toLowerCase().includes(query))
+            const itms = executables_list.filter(el => el.data.class_name.toLowerCase().includes(query.toLowerCase()))
 
             u(".container_items").html('')
             drawList(u(".container_items"), itms)
@@ -145,7 +145,9 @@ export class ExecutableController extends BaseController {
                 }
 
                 const _u = container.append((new ExecutableArgumentViewModel).render(arg, param_module))
-                param_module.post(arg.data, _u.find(`.argument_listitem[data-name='${arg.name}']`))
+                if (param_module) {
+                    param_module.post(arg.data, _u.find(`.argument_listitem[data-name='${arg.name}']`))
+                }
             })
         }
 
@@ -195,7 +197,7 @@ export class ExecutableController extends BaseController {
             return vals
         }
 
-        u("#page #args").on('click', ".argument_listitem .argument_about .common_name", (e) => {
+        u("#page #args").on('click', ".argument_listitem .argument_about .argument_listitem_icon", (e) => {
             u(e.target).closest(".argument_listitem").toggleClass('hidden')
         })
 
