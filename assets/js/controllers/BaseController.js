@@ -1,8 +1,10 @@
 import app from "../app.js"
 
 export class BaseController {
-    loader() {
-        app.title('...')
+    loader(container) {
+        app.content_side.title('...')
+
+        container.set(`<div class="placeholder"></div>`)
     }
 }
 

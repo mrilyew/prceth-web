@@ -35,7 +35,7 @@ export const subparams = {
             }
 
             if (data.env_property != null) {
-                _u.attr("placeholder", tr("content_will_be_set_from_env", escapeHtml(data.env_property)))
+                _u.attr("placeholder", tr("executables.env_value", escapeHtml(data.env_property)))
             }
 
             return _u

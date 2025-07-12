@@ -1,0 +1,63 @@
+.argument_listitem, .page-bottom {
+    padding: 8px 8px;
+}
+
+.argument_listitem {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid var(--head-lighter);
+}
+
+.argument_listitem.hidden .name_place {
+    filter: opacity(0.4);
+    user-select: none;
+}
+
+.argument_listitem.hidden .argument_value {
+    display: none;
+    filter: opacity(0.4);
+}
+
+.argument_listitem.hidden .desc {
+    display: none;
+}
+
+.argument_listitem:nth-child(odd) {
+    background: #f5f5f5;
+}
+
+.argument_listitem .argument_about {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.argument_listitem .argument_about .name {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.argument_listitem .argument_about .name_place {
+    display: inline-block;
+}
+
+.argument_listitem .argument_about b {
+    display: inline-block;
+}
+
+.argument_listitem .argument_listitem_icon {
+    width: 15px;
+    height: 15px;
+    background: url(/assets/images/styles.png);
+    display: inline-block;
+    margin-bottom: -1px;
+    cursor: pointer;
+
+    background-position: -15px -124px;
+}
+
+.argument_listitem.hidden .argument_listitem_icon {
+    background-position: 0px -124px;
+}

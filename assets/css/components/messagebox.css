@@ -4,8 +4,8 @@ body.dimmed > .dimmer {
     position: fixed;
     width: 100%;
     height: 100%;
-    background-color: #bbbbbb;
-    opacity: 0.8;
+    background-color: #bfbfbf;
+    opacity: 0.9;
 }
 
 .msg-window {

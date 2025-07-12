@@ -1,0 +1,7 @@
+.volume {
+    box-shadow: 0px 0px 0px 3px var(--head-2) inset;
+}
+
+#status-bar .tab.selected, .volume_light {
+    box-shadow: 0px 0px 0px 2px #eeebeb inset;
+}

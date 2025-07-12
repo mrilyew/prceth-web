@@ -26,6 +26,15 @@ export class Executable extends Model {
         return new Executable(resp.payload)
     }
 
+    static async getFromType(type_name) {
+        switch(type_name) {
+            case "extractor":
+                return await Executable.getFromName("executables.acts.Executables.RunExtractor")
+            case "representation":
+                return await Executable.getFromName("executables.acts.Executables.RunRepresentation")
+        }
+    }
+
     get category() {
         return this.data.category
     }

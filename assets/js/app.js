@@ -1,5 +1,6 @@
 import tr from "./langs/locale.js"
 import router from "./router.js"
+import Container from "./ui/Container.js"
 
 // class that represents page
 export const app = new class {
@@ -9,34 +10,27 @@ export const app = new class {
             u(`#status-bar a[data-tab="${tab}"]`).addClass('selected')
         }
     }
+    sidebar = new class {
+        show() {
+            if (u('#app #sidebar').hasClass("waiting_animation")) {
+                u('#app #sidebar_menu').addClass("moved")
+            }
+        }
 
+        hide() {
+            u('#app #sidebar').removeClass('waiting_animation')
+            u('#app #sidebar_menu').removeClass("moved")
+        }
+    }
     messageboxes = []
-
-    content_side = new class {
-        set(content = '') {
-            u('#app #page').html(content)
-        }
-
-        reset() {
-            this.set('')
-        }
-    }
-
-    another_side = new class {
-        set(content = '') {
-            u('#app #side').html(content)
-        }
-
-        reset() {
-            this.set('')
-        }
-    }
 
     constructor() {
         this.main_template()
+        this.content_side = new Container('#app #page')
+        this.another_side = new Container('#app #side')
 
         window.addEventListener("hashchange", async (event) => {
-            this.hide_sidebar()
+            this.sidebar.hide()
             await router.route(event.newURL)
         })
 
@@ -49,10 +43,6 @@ export const app = new class {
         scrollTo(0, 0)
     }
 
-    title(title) {
-        document.title = title + " - " + window.cfg['ui.name']
-    }
-
     main_template() {
         u("body").append(`<div class="dimmer"></div>`)
         u('#app').html(`
@@ -62,10 +52,10 @@ export const app = new class {
 
                     <div id="sidebar_menu">
                         <div class="sidebar_menu_buttons">
-                            <a href="#exec?cx=add">${tr("add")}</a>
-                            <a href="#stat">${tr("statistics")}</a>
-                            <a href="#test">Test</a>
-                            <a>Logs</a>
+                            <a href="#content">${tr('nav.content')}</a>
+                            <a href="#stat">${tr('nav.statistics')}</a>
+                            <a href="#test">${tr('nav.test')}</a>
+                            <a>${tr('nav.logs')}</a>
                         </div>
                     </div>
 
@@ -73,9 +63,9 @@ export const app = new class {
                 </div>
             </div>
             <nav id="status-bar" class="volume">
-                <a data-tab="content" class="tab" href="#content">${tr("content_tab")}</a>
-                <a data-tab="exec" class="tab" href="#exec">${tr("executables_tab")}</a>
-                <a data-tab="execute" class="tab hidden">${tr("executable_single_tab")}</a>
+                <a data-tab="add" class="tab" href="#add">${tr('nav.add')}</a>
+                <a data-tab="exec" class="tab" href="#exec">${tr('nav.executables')}</a>
+                <a data-tab="execute" class="tab hidden">${tr('nav.executable')}</a>
             </nav>
             <div id="container">
                 <div id="page"></div>
@@ -95,13 +85,13 @@ export const app = new class {
             u('#app #sidebar').addClass('waiting_animation')
 
             setTimeout(() => {
-                this.show_sidebar()
+                this.sidebar.show()
             }, 100)
         })
 
         u('#app #sidebar').on("mouseleave", (e) => {
             setTimeout(() => {
-                this.hide_sidebar()
+                this.sidebar.hide()
             }, 100)
         })
 
@@ -133,17 +123,6 @@ export const app = new class {
                 }
             }
         })
-    }
-
-    show_sidebar() {
-        if (u('#app #sidebar').hasClass("waiting_animation")) {
-            u('#app #sidebar_menu').addClass("moved")
-        }
-    }
-
-    hide_sidebar() {
-        u('#app #sidebar').removeClass('waiting_animation')
-        u('#app #sidebar_menu').removeClass("moved")
     }
 }
 

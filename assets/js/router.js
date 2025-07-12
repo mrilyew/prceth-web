@@ -22,18 +22,27 @@ export const router = new class {
         this.url = new HashURL(path)
 
         const _hash = this.url.getHash().replace('#', '')
-        let route = this.__findRoute(_hash) ?? this.__findRoute('index') // finding route for hash in url
+        let route = this.__findRoute(_hash) ?? this.__findRoute('not_found') // finding route for hash in url
+
+        if (route['args']) {
+            Object.entries(route['args']).forEach(el => {
+                this.url.setParam(el[0], el[1])
+            })
+        }
 
         const controller = route.class
 
         app.navigation.setTab(_hash)
         app.another_side.reset()
-
-        controller.loader()
-
-        await controller[route.method]()
-
         app.up()
+
+        if (route['loader']) {
+            controller[route.loader](app.content_side)
+        } else {
+            controller.loader(app.content_side)
+        }
+
+        await controller[route.method](app.content_side)
     }
 }
 

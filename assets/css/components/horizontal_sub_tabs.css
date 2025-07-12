@@ -1,0 +1,21 @@
+.horizontal_sub_tabs {
+    border-bottom: 1px solid var(--head-2);
+    display: flex;
+    gap: 5px;
+    padding: 0px 7px;
+}
+
+.horizontal_sub_tabs a {
+    padding: 3px 7px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.horizontal_sub_tabs a:hover {
+    background: var(--head-lighter-2);
+}
+
+.horizontal_sub_tabs a.selected {
+    background: var(--head-2);
+    color: var(--back);
+}

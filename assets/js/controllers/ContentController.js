@@ -49,7 +49,7 @@ export class ContentController extends BaseController {
         pushItems(items, insert_node)
 
         app.content_side.set(insert_node.html())
-        app.title(tr("content_tab"))
+        app.title(tr("content.title"))
 
         u("#container_body").on("click", ".show_more", async (e) => {
             const container = u(e.target).closest("#container_body")

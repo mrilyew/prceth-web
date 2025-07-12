@@ -13,86 +13,106 @@ const upper_categories = ["act", "extractor", "representation"]
 const createable = ["extractor", "representation"]
 
 export class ExecutableController extends BaseController {
-    async list() {
-        const _u = u(`
-            <div>
-                <div class="upper_note"></div>
-                <div class="horizontal_mini_tabs volume"></div>
-                <div id="container_search">
-                    <input placeholder="${tr("searches_by_data")}" id="search_bar" type="search">
-                </div>
-                <div class="container_items"></div>
-            </div>
-        `)
+    async list(container) {
         const context = router.url.getParam('cx') ?? null
         const default_for_context = context != "add" ? "act" : "representation"
         const selected_tab = router.url.getParam('tab')
-
-        function drawList(container, list) {
-            const categories = []
-            list.forEach(el => {
-                if (!categories.includes(el.data.category)) {
-                    categories.push(el.data.category)
-                }
-            })
-
-            // creating subcategories
-            categories.forEach(cat => {
-                container.append(`
-                    <div data-cat="${DOMPurify.sanitize(cat)}" class="category">
-                        <div class="category_name">${DOMPurify.sanitize(cat)}</div>
-                        <div class="category_items"></div>
-                    </div>
-                `)
-                list.forEach(el => {
-                    if (el.data.category == cat) {
-                        container.find(`.category[data-cat='${DOMPurify.sanitize(cat)}'] .category_items`).append(
-                            (new ExecutableViewModel).render(el, {
-                                "context": context
-                            }
-                        ))
-                    }
-                })
-            })
-        }
 
         let current_tab = selected_tab ?? default_for_context
         if (!upper_categories.includes(current_tab)) {
             current_tab = default_for_context
         }
 
-        upper_categories.forEach(exec_type => {
-            if (context == "add" && !createable.includes(exec_type)) {
-                return
-            }
-            
-            const add_this = u(`
-                <a data-tab="${exec_type}" href="#exec?tab=${exec_type}">${tr(exec_type + "s_tab")}</a>
-            `)
+        const ui_list = new class {
+            getCategories(list) {
+                const categories = []
+                list.forEach(el => {
+                    if (!categories.includes(el.data.category)) {
+                        categories.push(el.data.category)
+                    }
+                })
 
-            if (context == "add") {
-                add_this.attr("href", `#exec?cx=${context}&tab=${exec_type}`)
+                return categories
             }
 
-            _u.find(".horizontal_mini_tabs").append(add_this)
-            if (current_tab == exec_type) {
-                _u.find(`.horizontal_mini_tabs a[data-tab="${current_tab}"]`).addClass("selected")
-            }
-        })
+            draw(cont, list) {
+                const categories = this.getCategories(list)
 
-        if (context == "add") {
-            _u.find(".upper_note").append(`
-                <p>${tr("select_what_we_will_execute")}</p>
-            `)
-        } else {
-            _u.find(".upper_note").remove()
+                // creating categories tabs
+                categories.forEach(current_category => {
+                    cont.append(`
+                        <div data-cat="${DOMPurify.sanitize(current_category)}" class="category">
+                            <div class="category_name">${DOMPurify.sanitize(current_category)}</div>
+                            <div class="category_items"></div>
+                        </div>
+                    `)
+                    // now adding items to categories
+                    list.forEach(el => {
+                        const element_category = el.data.category
+                        if (element_category == current_category) {
+                            const new_view = (new ExecutableViewModel).render(el, {"context": context})
+                            cont.find(`.category[data-cat='${DOMPurify.sanitize(current_category)}'] .category_items`).append(new_view)
+                        }
+                    })
+                })
+            }
+        }
+        const ui_upper = new class {
+            draw(types, current_context, tabs_node) {
+                types.forEach(mtype => {
+                    if (current_context == "add" && !createable.includes(mtype)) {
+                        return
+                    }
+
+                    const add_this = u(`
+                        <a data-tab="${mtype}" href="#${router.url.getHash()}?tab=${mtype}">${tr("executables." + mtype + "s")}</a>
+                    `)
+
+                    if (current_context == "add") {
+                        add_this.attr("href", `#${router.url.getHash()}?cx=${current_context}&tab=${mtype}`)
+                    }
+
+                    tabs_node.append(add_this)
+                    if (current_tab == mtype) {
+                        tabs_node.find(`a[data-tab="${current_tab}"]`).addClass("selected")
+                    }
+                })
+            }
+        }
+        const ui_upper_note = new class {
+            addition_text(node) {
+                node.append(`
+                    <p>${tr("executables.sign")}</p>
+                `)
+            }
+
+            remove(node) {
+                node.remove()
+            }
         }
 
         const executables_list = await Executable.getList(current_tab)
-        drawList(_u.find(".container_items"), executables_list)
+        const _u = u(`
+            <div>
+                <div class="upper_note"></div>
+                <div class="horizontal_mini_tabs volume"></div>
+                <div id="container_search">
+                    <input placeholder="${tr("content.search_tip")}" id="search_bar" type="search">
+                </div>
+                <div class="container_items"></div>
+            </div>
+        `)
 
-        app.content_side.set(_u.html())
-        app.title(tr("executables_tab"))
+        ui_list.draw(_u.find(".container_items"), executables_list)
+        ui_upper.draw(upper_categories, context, _u.find(".horizontal_mini_tabs"))
+        if (context == "add") {
+            ui_upper_note.addition_text(_u.find(".upper_note"))
+        } else {
+            ui_upper_note.remove(_u.find(".upper_note"))
+        }
+
+        container.set(_u.html())
+        container.title(tr("nav.executables"))
 
         u('#container_search #search_bar').nodes[0].focus()
         u('#container_search').on('input', '#search_bar', (e) => {
@@ -100,20 +120,92 @@ export class ExecutableController extends BaseController {
             const itms = executables_list.filter(el => el.data.class_name.toLowerCase().includes(query.toLowerCase()))
 
             u(".container_items").html('')
-            drawList(u(".container_items"), itms)
+            ui_list.draw(u(".container_items"), itms)
         })
     }
 
-    async executable() {
+    list_loader(container) {
+        if (u('.container_items').length > 0) {
+            u('.container_items').html(`<div class="placeholder"></div>`)
+        } else {
+            this.loader(container)
+        }
+    }
+
+    async executable(container) {
         const executable_name = router.url.getParam('name')
+        const context = router.url.getParam('context')
         const executable = await Executable.getFromName(executable_name)
 
         const type = executable.sub
         const category = executable.category
         const name = executable.name
         const variants = executable.data.variants
+        const executable_type = type.slice(0, type.length - 1)
         const docs = executable.data['docs']
+        let extra_ext = null
         let full_name = `${type}.${category}.${name}`
+
+        if (context == 'add') {
+            extra_ext = await Executable.getFromType(executable_type)
+        }
+
+        const args = new class {
+            putArgs(container, args) {
+                args.forEach(arg => {
+                    const param_module = subparams[arg.type]
+                    if (arg.is_hidden) {
+                        return
+                    }
+
+                    const _u = container.append((new ExecutableArgumentViewModel).render(arg, param_module))
+                    if (param_module) {
+                        param_module.post(arg.data, _u.find(`.argument_listitem[data-name='${arg.name}']`))
+                    }
+                })
+            }
+
+            putVariants(node, variants) {
+                let index = 0
+
+                node.html(`
+                    <div class="horizontal_sub_tabs">
+                        <a class="selected" data-tab="all">${tr("executables.args.all")}</a>
+                    </div>
+                `)
+
+                variants.forEach(variant => {
+                    node.find(".horizontal_sub_tabs").append(`
+                        <a data-tab="${index}">${DOMPurify.sanitize(variant.name)}</a>
+                    `)
+
+                    index+=1
+                })
+            }
+
+            collect(nodes) {
+                const vals = {}
+                nodes.forEach(nd => {
+                    const val_node = nd.querySelector('.argument_value')
+                    const __type = val_node.dataset.type
+                    const type = subparams[__type]
+                    const value = type.recieveValue(nd)
+
+                    if (Number(nd.dataset.required) == 1) {
+                        if (value == null || String(value).length == 0) {
+                            type.focus(nd)
+                            throw new Error()
+                        }
+                    }
+
+                    if (value != undefined) {
+                        vals[nd.dataset.name] = value
+                    }
+                })
+
+                return vals
+            }
+        }
 
         const _u = u(`
             <div>
@@ -129,78 +221,31 @@ export class ExecutableController extends BaseController {
                         <div id="args"></div>
                     </div>
                     <div class="page-bottom">
-                        <input id="exec" type="button" value="${tr("execute_button")}">
+                        <input id="exec" type="button" value="${tr("executables.execute")}">
                     </div>
                 </div>
             </div>
         `)
 
-        const putArgs = (container, args) => {
-            container.html('')
-
-            args.forEach(arg => {
-                const param_module = subparams[arg.type]
-                if (arg.is_hidden) {
-                    return
-                }
-
-                const _u = container.append((new ExecutableArgumentViewModel).render(arg, param_module))
-                if (param_module) {
-                    param_module.post(arg.data, _u.find(`.argument_listitem[data-name='${arg.name}']`))
-                }
-            })
-        }
-
         if (variants && variants.length > 0) {
-            let index = 0
-
-            _u.find("#addit").html(`
-                <div class="horizontal_sub_tabs">
-                    <a class="selected" data-tab="all">${tr("all")}</a>
-                </div>
-            `)
-
-            variants.forEach(variant => {
-                _u.find("#addit .horizontal_sub_tabs").append(`
-                    <a data-tab="${index}">${DOMPurify.sanitize(variant.name)}</a>
-                `)
-
-                index+=1
-            })
+            args.putVariants(_u.find("#addit"), variants)
         }
 
-        app.content_side.set(_u.html())
-        app.title(DOMPurify.sanitize(full_name))
+        container.set(_u.html())
+        container.title(DOMPurify.sanitize(full_name))
 
-        putArgs(u('#args'), executable.args)
+        args.putArgs(u('#args'), executable.args)
 
-        function collectArguments(nodes) {
-            const vals = {}
-            nodes.forEach(nd => {
-                const val_node = nd.querySelector('.argument_value')
-                const __type = val_node.dataset.type
-                const type = subparams[__type]
-                const value = type.recieveValue(nd)
-
-                if (Number(nd.dataset.required) == 1) {
-                    if (value == null || String(value).length == 0) {
-                        type.focus(nd)
-                        throw new Error()
-                    }
-                }
-
-                if (value != undefined) {
-                    vals[nd.dataset.name] = value
-                }
-            })
-
-            return vals
+        if (extra_ext) {
+            args.putArgs(u('#args'), extra_ext.args.slice(1))
         }
 
+        // Argument visual toggler
         u("#page #args").on('click', ".argument_listitem .argument_about .argument_listitem_icon", (e) => {
             u(e.target).closest(".argument_listitem").toggleClass('hidden')
         })
 
+        // If there are defined argument lists
         u('#page .horizontal_sub_tabs').on('click', 'a', (e) => {
             const tab = u(e.target)
             const tabs = tab.closest('.horizontal_sub_tabs')
@@ -209,8 +254,10 @@ export class ExecutableController extends BaseController {
             tabs.find('a').removeClass('selected')
             tab.addClass('selected')
 
+            u('#args').html('')
+
             if (index == 'all') {
-                putArgs(u('#args'), executable.args)
+                args.putArgs(u('#args'), executable.args)
             } else {
                 const variant = variants[index]
                 const list = variant['list']
@@ -220,46 +267,32 @@ export class ExecutableController extends BaseController {
                     append_list.push(l)
                 })
 
-                putArgs(u('#args'), append_list)
+                args.putArgs(u('#args'), append_list)
             }
-
         })
 
+        // Run button
         u(".page-bottom").on('click', '#exec', async (e) => {
             app.up()
 
             const itms = u('#args .argument_listitem')
-            let args = null
+            let out_args = null
 
             try {
-                args = collectArguments(itms.nodes)
+                out_args = args.collect(itms.nodes)
             } catch(e) {
                 console.error(e)
                 return
             }
 
-            u("#side").html("")
+            app.another_side.set("")
 
-            const res = await api.executable(type.slice(0, type.length - 1), `${category}.${name}`, args)
+            const res = await api.executable(executable_type, `${category}.${name}`, out_args)
             const jsonViewer = create_json_viewer()
             jsonViewer.data = res
 
-            u("#side").append(jsonViewer)
+            app.another_side.node.append(jsonViewer)
         })
-    }
-
-    async stat() {
-        const stat = await api.act({
-            "i": "App.Stat"
-        })
-
-        app.content_side.set(`
-            <div id="about_page" style="padding: 10px 10px;">
-                <b>${tr("statistics")}</b>
-                <p>${stat.payload.content_units.total_count} units</p>
-            </div>
-        `)
-        app.title(tr("statistics"))
     }
 }
 

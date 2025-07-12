@@ -1,28 +1,31 @@
 const rus = {
-    "__lang_name": "Rus",
+    "lang.name": "Rus",
 
-    "common_page": "Статистика",
-    'add': "Добавить",
+    "main.common": "Пустая страница",
+    "main.not_found": "Не найдено",
 
-    'all': "Все",
-    'statistics': "Статистика",
-    'content_tab': "Содержимое",
-    'executables_tab': "Выполняемые",
-    'executable_single_tab': "Выполняемое",
-    'searches_by_data': "Поиск произойдёт по названию и описаниям внутри...",
+    'nav.add': "Добавить",
+    'nav.statistics': "Статистика",
+    'nav.test': "Отладка",
+    'nav.logs': "Логи",
+    'nav.content': "Единицы",
+    'nav.executables': "Скрипты",
+    'nav.executable': "Исполняемое",
 
-    'acts_tab': 'Действия',
-    'extractors_tab': 'Экстракторы',
-    'representations_tab': 'Репрезентации',
+    'content.search_tip': 'Поиск произойдёт по названию и описаниям внутри...',
+    'content.title': "Содержимое",
+    "content.units_title": "Единицы содержимого",
 
-    "execute_button": "Выполнить",
-    "content_units": "Единицы содержимого",
+    'executables.args.all': 'Все',
+    'executables.acts': 'Действия',
+    'executables.extractors': 'Экстракторы',
+    'executables.representations': 'Репрезентации',
+    "executables.execute": "Выполнить",
+    "executables.env_value": "Значение будет взято из параметра $1 в env.json",
+    "executables.sign": "Выбери, что мы будем выполнять",
 
-    "content_will_be_set_from_env": "Значение будет взято из параметра $1 в env.json",
-    "select_what_we_will_execute": "Выбери, что мы будем выполнять.",
-
-    "exception_title": "Произошла ошибка",
-    "exception_api_description": "Что-то вызвало ошибку http с сервера. Вот текст: $1. Может, вы выключили сервер?",
+    "exceptions.error_title": "Произошла ошибка",
+    "exceptions.error_net_description": "Что-то вызвало ошибку http с сервера. Вот текст: $1. Может, вы выключили сервер?",
 }
 
 export default rus

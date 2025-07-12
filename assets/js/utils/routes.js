@@ -10,7 +10,7 @@ export const routes = [
     },
     {
         'route': 'stat',
-        'class': (new ExecutableController),
+        'class': (new AboutController),
         'method': 'stat'
     },
     {
@@ -26,7 +26,17 @@ export const routes = [
     {
         'route': 'exec',
         'class': (new ExecutableController),
-        'method': 'list'
+        'method': 'list',
+        'loader': 'list_loader',
+    },
+    {
+        'route': 'add',
+        'class': (new ExecutableController),
+        'method': 'list',
+        'loader': 'list_loader',
+        'args': {
+            'cx': 'add',
+        }
     },
     {
         'route': 'execute',
@@ -37,6 +47,11 @@ export const routes = [
         'route': 'test',
         'class': (new AboutController),
         'method': 'test'
+    },
+    {
+        'route': 'not_found',
+        'class': (new AboutController),
+        'method': 'not_found'
     },
 ]
 

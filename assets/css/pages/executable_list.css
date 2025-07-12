@@ -1,0 +1,93 @@
+
+
+#container #container_head {
+    padding: 10px 9px;
+    background: var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+#container .container_items {
+    padding-bottom: 30px;
+}
+
+#container .container_items, #container .container_items .category_items {
+    display: flex;
+    flex-direction: column;
+}
+
+.container_items .category_name {
+    padding: 6px 6px;
+    font-weight: bold;
+    display: block;
+    background: var(--head-lighter);
+    border-bottom: 1px solid var(--head-lighter-2);
+}
+
+#container #container_search {
+    padding: 15px 15px;
+}
+
+#container .container_items .content_unit_item {
+    cursor: pointer;
+
+    display: grid;
+    grid-template-columns: 0fr 1fr;
+    gap: 8px;
+    height: 60px;
+    padding: 10px 10px;
+
+    color: var(--text);
+    border-bottom: 1px solid var(--border-color);
+}
+
+#container .container_items .content_unit_item b, #container .container_items .content_unit_item span {
+    font-size: 15px;
+}
+
+#container .container_items .content_unit_item:hover {
+    background: var(--border-color);
+}
+
+#container .container_items .content_unit_item .content_unit_thumb {
+    width: 90px;
+}
+
+#container .container_items .content_unit_item .content_unit_thumb .content_unit_image {
+    width: 100%;
+    height: 100%;
+    background: var(--border-color);
+}
+
+#container .container_items .content_unit_item:hover .content_unit_image {
+    background: var(--status-border);
+}
+
+#container .container_items .content_unit_item .content_unit_info {
+    padding: 2px 2px;
+}
+
+#container .container_items .content_unit_element .content_unit_representation {
+    display: inline-block;
+    background: var(--head-lighter-2);
+    padding: 0px 4px;
+}
+
+#container .container_items .scroll_element {
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    padding: 3px 5px;
+}
+
+#container .container_items .scroll_element:last-of-type {
+    border-bottom: unset;
+}
+
+#container .container_items .scroll_element:hover {
+    background-color: var(--head-lighter-2);
+}
+
+.upper_note {
+    padding: 8px 6px;
+    background: var(--head-lighter-2);
+    border-bottom: 1px solid var(--status-border);
+}

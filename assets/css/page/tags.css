@@ -1,0 +1,5 @@
+a, h1, p {
+    text-decoration: unset;
+    margin: 0;
+    color: var(--text);
+}

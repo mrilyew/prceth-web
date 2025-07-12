@@ -1,0 +1,9 @@
+.horizontal_mini_tabs a:hover {
+    background: var(--head-lighter);
+}
+
+.horizontal_mini_tabs a.selected {
+    background: var(--head-lighter-2);
+    outline: 1px solid var(--status-border);
+    z-index: 1;
+}
