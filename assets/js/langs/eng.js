@@ -14,6 +14,7 @@ const eng = {
 
     'content.search_tip': 'Search by name and descriptions...',
     'content.title': "Content",
+    'content.description': "Description",
     "content.units_title": "Content units",
 
     'executables.args.all': 'All',

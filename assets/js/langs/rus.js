@@ -14,6 +14,7 @@ const rus = {
 
     'content.search_tip': 'Поиск произойдёт по названию и описаниям внутри...',
     'content.title': "Содержимое",
+    'content.description': "Описание",
     "content.units_title": "Единицы содержимого",
 
     'executables.args.all': 'Все',

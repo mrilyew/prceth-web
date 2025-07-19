@@ -22,8 +22,8 @@ export const api = new class {
             return await data.json()
         } catch(e) {
             const msg = new MessageBox({
-                title: tr("exception_title"),
-                body: tr("exception_api_description", DOMPurify.sanitize(e)),
+                title: tr("exceptions.error_title"),
+                body: tr("exceptions.error_net_description", DOMPurify.sanitize(e)),
                 buttons: ['ok'],
                 callbacks: [() => {}],
             })

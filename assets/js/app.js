@@ -1,6 +1,7 @@
 import tr from "./langs/locale.js"
 import router from "./router.js"
 import Container from "./ui/Container.js"
+import ContentUnitsEvents from "./ui/ContentUnits.js"
 
 // class that represents page
 export const app = new class {
@@ -26,6 +27,7 @@ export const app = new class {
 
     constructor() {
         this.main_template()
+        this.delegatedEvents()
         this.content_side = new Container('#app #page')
         this.another_side = new Container('#app #side')
 
@@ -123,6 +125,10 @@ export const app = new class {
                 }
             }
         })
+    }
+
+    delegatedEvents() {
+        new ContentUnitsEvents()
     }
 }
 

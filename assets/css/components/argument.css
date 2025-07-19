@@ -50,7 +50,7 @@
 .argument_listitem .argument_listitem_icon {
     width: 15px;
     height: 15px;
-    background: url(/assets/images/styles.png);
+    background: url(/static/images/styles.png);
     display: inline-block;
     margin-bottom: -1px;
     cursor: pointer;

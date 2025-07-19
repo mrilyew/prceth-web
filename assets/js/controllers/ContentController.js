@@ -7,7 +7,7 @@ import ContentUnitSmallViewModel from "../view_models/ContentUnitSmallViewModel.
 import tr from "../langs/locale.js"
 
 export class ContentController extends BaseController {
-    async main() {
+    async main(container) {
         let total_count, scrolled_count, last_offset = 0
 
         const recieveItems = async (offset) => {
@@ -25,13 +25,13 @@ export class ContentController extends BaseController {
             return response.items
         }
 
-        const pushItems = (items, container) => {
+        const pushItems = (items, container_node) => {
             items.forEach(itm => {
-                container.find(".container_items").append((new ContentUnitSmallViewModel).render(itm))
+                container_node.find(".container_items").append((new ContentUnitSmallViewModel).render(itm))
             })
 
             if (scrolled_count < total_count) {
-                container.find(".container_items").append(`
+                container_node.find(".container_items").append(`
                     <div class="show_more">Show next</div>    
                 `)
             }
@@ -48,18 +48,18 @@ export class ContentController extends BaseController {
 
         pushItems(items, insert_node)
 
-        app.content_side.set(insert_node.html())
-        app.title(tr("content.title"))
+        container.set(insert_node.html())
+        container.title(tr("content.title"))
 
         u("#container_body").on("click", ".show_more", async (e) => {
-            const container = u(e.target).closest("#container_body")
+            const container_node = u(e.target).closest("#container_body")
             u(e.target).addClass('unclickable')
 
             const new_items = await recieveItems(last_offset)
 
             u(e.target).remove()
 
-            pushItems(new_items, container)
+            pushItems(new_items, container_node)
         })
     }
 
