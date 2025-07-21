@@ -11,9 +11,11 @@ class ExecutableViewModel {
         }
 
         return u(`
-            <a href="${link}" class="scroll_element no_overflow">
-                <b>${proc_strtr(escapeHtml(data.category + '.' + data.name), 500)}</b>
-            </a>
+            <div class="scroll_element no_overflow">
+                <a href="${link}" class="scroll_element_title">
+                    <b>${proc_strtr(escapeHtml(data.category + '.' + data.name), 500)}</b>
+                </a>
+            </div>
         `)
     }
 }

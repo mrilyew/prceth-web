@@ -77,11 +77,7 @@ export class ContentController extends BaseController {
         `)
 
         units.forEach(unit => {
-            _u.find(".container_items").append(`
-                <div class="item_block">
-                    <b>${DOMPurify.sanitize(unit.data.display_name)}</b>
-                </div>
-            `)
+            _u.find(".container_items").append((new ContentUnitSmallViewModel).render(unit))
         })
 
         if (units.length == 1) {
@@ -94,7 +90,7 @@ export class ContentController extends BaseController {
         }
 
         app.content_side.set(_u.html())
-        app.title(tr("content_units"))
+        app.content_side.title(tr("content_units"))
     }
 }
 
