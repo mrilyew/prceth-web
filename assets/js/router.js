@@ -22,7 +22,7 @@ export const router = new class {
         this.url = new HashURL(path)
 
         const _hash = this.url.getHash().replace('#', '')
-        let route = this.__findRoute(_hash) ?? this.__findRoute('not_found') // finding route for hash in url
+        const route = this.__findRoute(_hash) ?? this.__findRoute('not_found') // finding route for hash in url
 
         if (route['args']) {
             Object.entries(route['args']).forEach(el => {
@@ -37,12 +37,16 @@ export const router = new class {
         app.up()
 
         if (route['loader']) {
+            app.content_side.node.addClass("currently_switching")
+
             controller[route.loader](app.content_side)
         } else {
             controller.loader(app.content_side)
         }
 
         await controller[route.method](app.content_side)
+
+        app.content_side.node.removeClass("currently_switching")
     }
 }
 

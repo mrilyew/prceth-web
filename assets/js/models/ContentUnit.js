@@ -7,9 +7,8 @@ export class ContentUnit extends Model {
             "i": "ContentUnits.GetById",
             "ids": ids,
         })
-        const py = dl.payload
 
-        return ContentUnit.fromArray(py)
+        return ContentUnit.fromArray(dl)
     }
 
     static async search(count = 100, offset = null) {
@@ -18,8 +17,7 @@ export class ContentUnit extends Model {
             "count": count,
             "timestamp_after": offset ?? "",
         })
-        const payload = resp.payload
-        const items = payload.items
+        const items = resp.items
         let last_offset = null
 
         if (items[items.length - 1] != null) {
@@ -27,7 +25,7 @@ export class ContentUnit extends Model {
         }
 
         return {
-            "total_count": payload.total_count,
+            "total_count": resp.total_count,
             "last_offset": last_offset,
             "items": ContentUnit.fromArray(items)
         }

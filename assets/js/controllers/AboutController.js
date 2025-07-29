@@ -51,7 +51,7 @@ export class AboutController extends BaseController {
         container.set(`
             <div id="about_page" style="padding: 10px 10px;">
                 <b>${tr("statistics")}</b>
-                <p>${stat.payload.content_units.total_count} units</p>
+                <p>${stat.content_units.total_count} units</p>
             </div>
         `)
         container.title(tr("statistics"))

@@ -9,7 +9,7 @@ export class Executable extends Model {
             "class_type": class_type,
         })
 
-        return Executable.fromArray(resp.payload)
+        return Executable.fromArray(resp)
     }
 
     static async getFromName(class_name) {
@@ -23,7 +23,7 @@ export class Executable extends Model {
             'class': class_id
         })
 
-        return new Executable(resp.payload)
+        return new Executable(resp)
     }
 
     static async getFromType(type_name) {

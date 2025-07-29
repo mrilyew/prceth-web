@@ -1,25 +1,15 @@
 import MessageBox from "./utils/MessageBox.js"
 import tr from "./langs/locale.js"
+import app from "./app.js"
 
 export const api = new class {
     async act(params = {}) {
-        const request_url = new URL(location.href)
-        const postData = new FormData()
-        let data = null
-
-        request_url.pathname = '/api/act'
-
-        Object.entries(params).forEach(n => {
-            postData.set(n[0], n[1])
-        })
-
+        console.log(params)
         try {
-            data = await fetch(request_url, {
-                method: 'POST',
-                body: postData
-            })
+            const res = await app.ws_connection.act(params)
 
-            return await data.json()
+            console.log(res)
+            return res
         } catch(e) {
             const msg = new MessageBox({
                 title: tr("exceptions.error_title"),

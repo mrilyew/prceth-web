@@ -23,6 +23,82 @@ export const app = new class {
             u('#app #sidebar_menu').removeClass("moved")
         }
     }
+    ws_connection = new class {
+        ws = null
+        callback_dictionary = {}
+        event_index = 0
+
+        constructor() {
+            this.connect()
+        }
+
+        connect() {
+            this.ws = new WebSocket(`ws://${location.host}/ws`)
+
+            this.ws.onopen = () => {
+                this.ws.send(JSON.stringify({"type": "ping", "event_index": 0}));
+            }
+
+            this.ws.onmessage = (evt) => {
+                const data = evt.data
+                const spl_data = JSON.parse(data)
+
+                const event_type = spl_data["type"]
+                const event_index = spl_data["event_index"]
+                const event_data = spl_data["payload"]
+
+                const callback = this.callback_dictionary[event_index]
+
+                if (callback) {
+                    callback.resolve(event_data)
+
+                    //delete this.callback_dictionary[event_index]
+                }
+            }
+
+            this.ws.onclose = (event) => {
+                this.callback_dictionary = {}
+                setTimeout(() => this.connect(), 200)
+            }
+
+            this.ws.onerror = (err) => {
+                console.error(err)
+            }
+        }
+
+        increment_index() {
+            this.event_index += 1
+        }
+
+        async act(params, attempt = 0) {
+            if (attempt > 5) {
+                return null
+            }
+
+            if (!this.ws.readyState) {
+                await new Promise(resolve => setTimeout(resolve, 100))
+
+                return await this.act(params, attempt + 1)
+            }
+
+            return new Promise((resolve, reject) => {
+                const send = {
+                    "type": "act",
+                    "event_index": this.event_index,
+                    "payload": params
+                }
+
+                this.callback_dictionary[this.event_index] = {resolve, reject}
+
+                try {
+                    this.ws.send(JSON.stringify(send))
+                    this.increment_index()
+                } catch(err) {
+                    reject(err)
+                }
+            })
+        }
+    }
     messageboxes = []
 
     constructor() {

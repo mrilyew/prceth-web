@@ -125,11 +125,15 @@ export class ExecutableController extends BaseController {
     }
 
     list_loader(container) {
-        if (u('.container_items').length > 0) {
-            u('.container_items').html(`<div class="placeholder"></div>`)
-        } else {
-            this.loader(container)
-        }
+        setTimeout(() => {
+            if (app.content_side.node.hasClass("currently_switching")) {
+                if (u('.container_items').length > 0) {
+                    u('.container_items').html(`<div class="placeholder"></div>`)
+                } else {
+                    this.loader(container)
+                }
+            }
+        }, 200)
     }
 
     async executable(container) {
