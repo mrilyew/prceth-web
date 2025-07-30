@@ -30,6 +30,12 @@ const rus = {
 
     "exceptions.error_title": "Произошла ошибка",
     "exceptions.error_net_description": "Что-то вызвало ошибку http с сервера. Вот текст: $1. Может, вы выключили сервер?",
+
+    "logger.show_ignored": "Показать скрытые категории",
+    "logger.no_logs": "Логов на данный момент нет.",
+    "logger.logs_state": "Список будет сброшен после перезагрузки страницы.",
+    "logger.logs_state_2": "Полный список находится в /storage/logs.",
+    "logger.only_section": "Только из категории"
 }
 
 export default rus

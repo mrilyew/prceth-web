@@ -22,3 +22,11 @@
     height: 100%;
     min-height: 300px;
 }
+
+.empty_block {
+    display: flex;
+    justify-content: center;
+    padding: 44% 0%;
+    outline: 1px solid var(--head);
+    background: var(--almost-bg);
+}

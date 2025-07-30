@@ -16,7 +16,7 @@
 }
 
 .container_items .category_name {
-    padding: 6px 6px;
+    padding: 10px 12px;
     font-weight: bold;
     display: block;
     background: var(--head-lighter);

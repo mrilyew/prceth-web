@@ -1,6 +1,7 @@
 import AboutController from "../controllers/AboutController.js"
 import ContentController from "../controllers/ContentController.js"
 import ExecutableController from "../controllers/ExecutableController.js"
+import LoggerController from "../controllers/LoggerController.js"
 
 export const routes = [
     {
@@ -47,6 +48,11 @@ export const routes = [
         'route': 'test',
         'class': (new AboutController),
         'method': 'test'
+    },
+    {
+        'route': 'logs',
+        'class': (new LoggerController),
+        'method': 'index'
     },
     {
         'route': 'not_found',

@@ -28,6 +28,12 @@ const eng = {
 
     "exceptions.error_title": "Error occured",
     "exceptions.error_net_description": "Something caused http error from the server. Here the text: $1. Maybe you turned off the server?",
+
+    "logger.show_ignored": "Show hidden categories",
+    "logger.no_logs": "There is no logs at this moment.",
+    "logger.logs_state": "The list will be reset after refresh.",
+    "logger.logs_state_2": "The full list can be found at /storage/logs.",
+    "logger.only_section": "Only from category"
 }
 
 export default eng

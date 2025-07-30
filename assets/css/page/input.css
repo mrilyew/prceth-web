@@ -38,3 +38,14 @@ input[type='button'].active {
     background: var(--head);
     border: 1px solid var(--status-border);
 }
+
+.checkbox_label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.select_label select {
+    width: fit-content;
+    display: inline-block;
+}

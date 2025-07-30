@@ -5,6 +5,7 @@ import ContentUnitsEvents from "./ui/ContentUnits.js"
 
 // class that represents page
 export const app = new class {
+    logs = []
     navigation = new class {
         setTab(tab) {
             u('#status-bar a').removeClass('selected')
@@ -52,6 +53,8 @@ export const app = new class {
                 switch(event_type) {
                     case "log":
                         console.log(`Logger message: `, event_data)
+                        app.logs.push(event_data)
+
                         break
                     case "act":
                         if (callback) {
@@ -137,7 +140,7 @@ export const app = new class {
                             <a href="#content">${tr('nav.content')}</a>
                             <a href="#stat">${tr('nav.statistics')}</a>
                             <a href="#test">${tr('nav.test')}</a>
-                            <a>${tr('nav.logs')}</a>
+                            <a href="#logs">${tr('nav.logs')}</a>
                         </div>
                     </div>
 

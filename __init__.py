@@ -91,7 +91,10 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
                 "payload": components
             }
 
-            self.write_message(dump_json(data))
+            try:
+                self.write_message(dump_json(data))
+            except tornado.websocket.WebSocketClosedError as e:
+                pass
 
         logger.add_hook("log", __logger_hook)
 
@@ -118,6 +121,7 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
                 assert act_class != None, "act not found"
 
                 act = act_class()
+                response = None
 
                 try:
                     response = await act.safeExecute(args)
