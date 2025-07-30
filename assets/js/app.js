@@ -49,10 +49,14 @@ export const app = new class {
 
                 const callback = this.callback_dictionary[event_index]
 
-                if (callback) {
-                    callback.resolve(event_data)
-
-                    //delete this.callback_dictionary[event_index]
+                switch(event_type) {
+                    case "log":
+                        console.log(`Logger message: `, event_data)
+                        break
+                    case "act":
+                        if (callback) {
+                            callback.resolve(event_data)
+                        }
                 }
             }
 

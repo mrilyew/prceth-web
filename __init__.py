@@ -86,7 +86,7 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
             components = kwargs["components"]
 
             data = {
-                "type": "logger",
+                "type": "log",
                 "event_index": 0,
                 "payload": components
             }
@@ -139,10 +139,8 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
                     "payload": response
                 }))
 
-
     def on_close(self):
         for hook in logger.hooks("log"):
-            print(hook.__name__)
             if hook.__name__ == "__logger_hook":
                 logger.remove_hook("log", hook)
 

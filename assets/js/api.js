@@ -4,11 +4,11 @@ import app from "./app.js"
 
 export const api = new class {
     async act(params = {}) {
-        console.log(params)
         try {
             const res = await app.ws_connection.act(params)
 
-            console.log(res)
+            console.log("API: ", params["i"], params, res)
+
             return res
         } catch(e) {
             const msg = new MessageBox({
