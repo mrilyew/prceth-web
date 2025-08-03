@@ -22,9 +22,7 @@ class LoggerController extends BaseController {
                         <label id="only_section" class="select_label">
                             ${tr("logger.only_section")}
 
-                            <select>
-                                <option value="!">---</option>
-                            </select>
+                            <select></select>
                         </label>
                     </div>
                 </div>
@@ -34,8 +32,8 @@ class LoggerController extends BaseController {
         container.title(tr("nav.logs"))
 
         let hiddeness = false
-        let section = null
-        let logs_length = app.logs.length
+        let current_section = null
+        let logs_length = app.logs.length // on page enter
 
         // Recieving unique list of sections
         const sectionsFromLogs = (logs) => {
@@ -51,7 +49,7 @@ class LoggerController extends BaseController {
         const drawList = (container, logs, show_hidden = false, only_section = null) => {
             let write_logs = []
             logs.forEach(el => {
-                if (el["silent"] && (!show_hidden || only_section != null)) {
+                if (el["silent"] && (!show_hidden && only_section == null)) {
                     return
                 }
 
@@ -62,10 +60,17 @@ class LoggerController extends BaseController {
                 write_logs.push(el)
             })
 
+            container.find("#only_section select").html(`<option value="!">---</option>`)
             sectionsFromLogs(app.logs).forEach(section => {
-                container.find("#only_section select").append(`
+                const _option_u = u(`
                     <option value="${escapeHtml(section)}">${escapeHtml(section)}</option>    
                 `)
+
+                if (section == only_section) {
+                    _option_u.attr("selected", "1")
+                }
+
+                container.find("#only_section select").append(_option_u)
             })
 
             if (write_logs.length == 0) {
@@ -85,7 +90,7 @@ class LoggerController extends BaseController {
             container.find("#logs").html("")
         }
 
-        drawList(container.node.find("#logs_block"), app.logs, hiddeness, section)
+        drawList(container.node.find("#logs_block"), app.logs, hiddeness, current_section)
 
         const interval = setInterval(() => {
             console.log("Logs update")
@@ -104,12 +109,10 @@ class LoggerController extends BaseController {
         }, 1000)
 
         u("#logs_block #logs_settings").on("change", "#show_ignored input", (e) => {
-            const checked = e.target.checked
-
-            hiddeness = checked
+            hiddeness = e.target.checked
 
             hideList(container.node)
-            drawList(container.node, app.logs, checked)
+            drawList(container.node, app.logs, hiddeness)
         })
 
         u("#logs_block #logs_settings").on("change", "#only_section select", (e) => {

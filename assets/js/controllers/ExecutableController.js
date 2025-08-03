@@ -3,7 +3,7 @@ import router from "../router.js"
 import app from "../app.js"
 import api from "../api.js"
 import Executable from "../models/Executable.js"
-import subparams from "../utils/subparams.js"
+import subparams from "../resources/subparams.js"
 import {create_json_viewer} from "../utils/utils.js"
 import tr from "../langs/locale.js"
 import ExecutableViewModel from "../view_models/ExecutableViewModel.js"
@@ -157,15 +157,11 @@ export class ExecutableController extends BaseController {
         const args = new class {
             putArgs(container, args) {
                 args.forEach(arg => {
-                    const param_module = subparams[arg.type]
                     if (arg.is_hidden) {
                         return
                     }
 
-                    const _u = container.append((new ExecutableArgumentViewModel).render(arg, param_module))
-                    if (param_module) {
-                        param_module.post(arg.data, _u.find(`.argument_listitem[data-name='${arg.name}']`))
-                    }
+                    (new ExecutableArgumentViewModel(container, arg)).render({})
                 })
             }
 
@@ -225,7 +221,7 @@ export class ExecutableController extends BaseController {
                         <div id="args"></div>
                     </div>
                     <div class="page-bottom">
-                        <input id="exec" type="button" value="${tr("executables.execute")}">
+                        <input class="wide_button" id="exec" type="button" value="${tr("executables.execute")}">
                     </div>
                 </div>
             </div>
@@ -243,11 +239,6 @@ export class ExecutableController extends BaseController {
         if (extra_ext) {
             args.putArgs(u('#args'), extra_ext.args.slice(1))
         }
-
-        // Argument visual toggler
-        u("#page #args").on('click', ".argument_listitem .argument_about .argument_listitem_icon", (e) => {
-            u(e.target).closest(".argument_listitem").toggleClass('hidden')
-        })
 
         // If there are defined argument lists
         u('#page .horizontal_sub_tabs').on('click', 'a', (e) => {

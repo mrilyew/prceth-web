@@ -1,5 +1,5 @@
 import Model from "../models/Model.js"
-import subparams from "../utils/subparams.js"
+import subparams from "../resources/subparams.js"
 
 class ExecutableArgument extends Model {
     constructor(data) {
@@ -17,6 +17,10 @@ class ExecutableArgument extends Model {
     }
 
     get default() {
+        if (this.data.current) {
+            return this.data.current
+        }
+
         return this.data.default
     }
 

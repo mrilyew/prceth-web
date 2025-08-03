@@ -1,7 +1,7 @@
 import tr from "./langs/locale.js"
 import router from "./router.js"
 import Container from "./ui/Container.js"
-import ContentUnitsEvents from "./ui/ContentUnits.js"
+import ApiError from "./exceptions/ApiError.js"
 
 // class that represents page
 export const app = new class {
@@ -58,17 +58,28 @@ export const app = new class {
                         break
                     case "act":
                         if (callback) {
-                            callback.resolve(event_data)
+                            if (spl_data["error"]) {
+                                callback.reject(new ApiError(spl_data["error"]["message"], spl_data["error"]["exception_name"], spl_data["error"]["status_code"]))
+                            } else {
+                                callback.resolve(event_data)
+                            }
                         }
                 }
             }
 
             this.ws.onclose = (event) => {
                 this.callback_dictionary = {}
+
                 setTimeout(() => this.connect(), 200)
             }
 
             this.ws.onerror = (err) => {
+                const msg = new MessageBox({
+                    title: tr("exceptions.websocket_connection_failed"),
+                    body: tr("exceptions.error_net_description", DOMPurify.sanitize(e)),
+                    buttons: ['ok'],
+                    callbacks: [() => {}],
+                })
                 console.error(err)
             }
         }
@@ -110,7 +121,6 @@ export const app = new class {
 
     constructor() {
         this.main_template()
-        this.delegatedEvents()
         this.content_side = new Container('#app #page')
         this.another_side = new Container('#app #side')
 
@@ -138,9 +148,12 @@ export const app = new class {
                     <div id="sidebar_menu">
                         <div class="sidebar_menu_buttons">
                             <a href="#content">${tr('nav.content')}</a>
+                            <a href="#add">${tr('nav.add')}</a>
+                            <a href="#exec">${tr('nav.executables')}</a>
                             <a href="#stat">${tr('nav.statistics')}</a>
-                            <a href="#test">${tr('nav.test')}</a>
                             <a href="#logs">${tr('nav.logs')}</a>
+                            <a href="#config">${tr('nav.config')}</a>
+                            <a href="#test">${tr('nav.test')}</a>
                         </div>
                     </div>
 
@@ -149,7 +162,6 @@ export const app = new class {
             </div>
             <nav id="status-bar" class="volume">
                 <a data-tab="add" class="tab" href="#add">${tr('nav.add')}</a>
-                <a data-tab="exec" class="tab" href="#exec">${tr('nav.executables')}</a>
                 <a data-tab="execute" class="tab hidden">${tr('nav.executable')}</a>
             </nav>
             <div id="container">
@@ -208,10 +220,6 @@ export const app = new class {
                 }
             }
         })
-    }
-
-    delegatedEvents() {
-        new ContentUnitsEvents()
     }
 }
 

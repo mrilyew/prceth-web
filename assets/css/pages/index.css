@@ -1,0 +1,8 @@
+#about_page {
+    padding: 10px 10px;
+    background: var(--head-lighter-2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 9%;
+}

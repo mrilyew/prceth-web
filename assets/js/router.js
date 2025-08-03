@@ -1,6 +1,6 @@
 import app from "./app.js"
-import routes from "./utils/routes.js"
-import HashURL from "./utils/HashURL.js"
+import routes from "./resources/routes.js"
+import HashURL from "./resources/HashURL.js"
 
 // class that starts controller method
 export const router = new class {
@@ -18,11 +18,15 @@ export const router = new class {
         return result
     }
 
+    async go_to(route_name) {
+        await this.route(location.origin + "/#" + route_name)
+    }
+
     async route(path) {
         this.url = new HashURL(path)
 
         const _hash = this.url.getHash().replace('#', '')
-        const route = this.__findRoute(_hash) ?? this.__findRoute('not_found') // finding route for hash in url
+        const route = (_hash == '' ? this.__findRoute("index") : this.__findRoute(_hash)) ?? this.__findRoute('not_found') // finding route for hash in url
 
         if (route['args']) {
             Object.entries(route['args']).forEach(el => {

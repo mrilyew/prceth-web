@@ -1,7 +1,7 @@
 from repositories.ActsRepository import ActsRepository
 from utils.MainUtils import dump_json, parse_json
 from resources.Consts import consts
-from app.App import app, config, logger
+from app.App import app, config, logger, storage
 from pathlib import Path
 import traceback
 import tornado
@@ -37,7 +37,7 @@ if dir_node_modules.is_dir() == False:
 class MainPageHandler(tornado.web.RequestHandler):
     def get(self):
         context = {
-            "config": config, 
+            "config": config
         }
 
         self.render("index.html", **context)
@@ -125,6 +125,11 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
 
                 try:
                     response = await act.safeExecute(args)
+                    self.write_message(dump_json({
+                        "type": message_type,
+                        "event_index": message_index,
+                        "payload": response
+                    }))
                 except Exception as _e:
                     self.write_message(dump_json({
                         "type": message_type,
@@ -136,12 +141,6 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
                             "message": str(_e),
                         }
                     }))
-
-                self.write_message(dump_json({
-                    "type": message_type,
-                    "event_index": message_index,
-                    "payload": response
-                }))
 
     def on_close(self):
         for hook in logger.hooks("log"):

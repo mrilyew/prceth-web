@@ -1,12 +1,12 @@
 import BaseController from "./BaseController.js"
-import MessageBox from "../utils/MessageBox.js"
+import MessageBox from "../ui/MessageBox.js"
 import tr from "../langs/locale.js"
 import api from "../api.js"
 
 export class AboutController extends BaseController {
     async main(container) {
         container.set(`
-            <div id="about_page" style="padding: 10px 10px;">
+            <div id="about_page">
                 <b>Prcet:h v0.0</b>
             </div>
         `)
@@ -16,7 +16,7 @@ export class AboutController extends BaseController {
     async not_found(container) {
         container.set(`
             <div id="not_found_page" style="padding: 10px 10px;">
-                <h1>not found!</h1>
+                <span>not_found_page</span>
             </div>
         `)
         container.title(tr("main.not_found"))
@@ -49,7 +49,7 @@ export class AboutController extends BaseController {
         })
 
         container.set(`
-            <div id="about_page" style="padding: 10px 10px;">
+            <div id="stat_page" style="padding: 10px 10px;">
                 <b>${tr("statistics")}</b>
                 <p>${stat.content_units.total_count} units</p>
             </div>

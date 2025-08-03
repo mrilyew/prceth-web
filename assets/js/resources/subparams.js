@@ -1,7 +1,12 @@
-import {proc_strtr, escapeHtml} from "./utils.js"
+import {proc_strtr, escapeHtml} from "../utils/utils.js"
 import tr from "../langs/locale.js"
 
 class SubArgument {
+    constructor(container, data) {
+        this.container = container
+        this.data = data
+    }
+
     recieveValue(node) {
         return node.querySelector('._val').value
     }
@@ -9,82 +14,86 @@ class SubArgument {
     focus(node) {
         return node.querySelector('._val').focus()
     }
-
-    post(data, node) {}
 }
 
 export const subparams = {
-    'StringArgument': new class extends SubArgument {
-        renderValue(data) {
+    'StringArgument': class StringArgument extends SubArgument {
+        render(i) {
             let _u = u(`
                 <input class="_val" type="text">
             `)
 
-            if (data.is_long == true) {
+            if (this.data.is_long == true) {
                 _u = u(`
                     <textarea class="_val"></textarea>
                 `)
             }
 
-            if (data.default != null) {
-                if (data.is_long != true) {
-                    _u.attr("value", data.default)
+            if (this.data.default != null) {
+                if (this.data.is_long != true) {
+                    _u.attr("value", this.data.default)
                 } else {
-                    _u.html(escapeHtml(data.default))
+                    _u.html(escapeHtml(this.data.default))
                 }
             }
 
-            if (data.env_property != null) {
+            if (this.data.env_property != null) {
                 _u.attr("placeholder", tr("executables.env_value", escapeHtml(data.env_property)))
             }
+
+            this.container.append(_u)
 
             return _u
         }
     },
-    'IntArgument': new class extends SubArgument {
-        renderValue(data) {
+    'IntArgument': class IntArgument extends SubArgument {
+        render(i) {
             const _u = u(`
                 <input class="_val" type="number">
             `)
 
-            if (data.default != null) {
-                _u.attr("value", data.default)
+            if (this.data.default != null) {
+                _u.attr("value", this.data.default)
             }
+
+            this.container.append(_u)
 
             return _u
         }
     },
-    'FloatArgument': new class extends SubArgument {
-        renderValue(data) {
+    'FloatArgument': class FloatArgument extends SubArgument {
+        render(i) {
             const _u = u(`
                 <input class="_val" step="0.01" type="number">
             `)
 
-            if (data.default != null) {
-                _u.attr("value", data.default)
+            if (this.data.default != null) {
+                _u.attr("value", this.data.default)
             }
 
             return _u
         }
     },
-    'LimitedArgument': new class extends SubArgument {
-        renderValue(data) {
+    'LimitedArgument': class LimitedArgument extends SubArgument {
+        render(i) {
             let _u = u(`
                 <div class="_val"></div>
             `)
 
-            data.values.forEach(itm => {
+            this.data.values.forEach(itm => {
                 let name = escapeHtml(itm)
-                if (data.docs && data.docs['values'] && data.docs.values[itm]) {
-                    name = data.docs.values[itm]
+                if (this.data.docs && this.data.docs['values'] && this.data.docs.values[itm]) {
+                    name = this.data.docs.values[itm]
                 }
 
-                _u.append(`<label class="block_label"><input type="radio" name="${data.name}" value="${escapeHtml(itm)}">${name}</label>`)
+                _u.append(`<label class="block_label"><input type="radio" name="${this.data.name}" value="${escapeHtml(itm)}">${name}</label>`)
             })
 
-            if (data.default != null) {
-                _u.find(`.block_label input[value='${escapeHtml(data.default)}']`).attr("checked", "true")
+            if (this.data.default != null) {
+                _u.find(`.block_label input[value='${escapeHtml(this.data.default)}']`).attr("checked", "true")
             }
+
+            this.container.append(_u)
 
             return _u
         }
@@ -93,15 +102,17 @@ export const subparams = {
             return node.querySelector('._val input:checked').value
         }
     },
-    'BooleanArgument': new class extends SubArgument {
-        renderValue(data) {
+    'BooleanArgument': class BooleanArgument extends SubArgument {
+        render(i) {
             let _u = u(`
                 <input type="checkbox" class="_val">
             `)
 
-            if (data.default == true) {
+            if (this.data.default == true) {
                 _u.attr("checked", "")
             }
+
+            this.container.append(_u)
 
             return _u
         }
@@ -110,21 +121,23 @@ export const subparams = {
             return Number(node.querySelector('._val').checked == true)
         }
     },
-    'JsonArgument': new class extends SubArgument {
-        renderValue(data) {
+    'JsonArgument': class JsonArgument extends SubArgument {
+        render(i) {
             let _u = u(`
                 <textarea class="_val"></textarea>
             `)
 
-            if (data.default != null) {
-                _u.html(escapeHtml(JSON.stringify(data.default)))
+            if (this.data.default != null) {
+                _u.html(escapeHtml(JSON.stringify(this.data.default)))
             }
+
+            this.container.append(_u)
 
             return _u
         }
     },
-    'CsvArgument': new class extends SubArgument {
-        renderValue(data) {
+    'CsvArgument': class CsvArgument extends SubArgument {
+        render(i) {
             let _u = u(`
                 <div>
                     <div class="flex" style="gap: 7px;">
@@ -134,11 +147,14 @@ export const subparams = {
                 </div>
             `)
 
+            this.container.append(_u)
+            this.events(_u)
+
             return _u
         }
-        post(data, node) {
+        events(node) {
             const addItem = (preset) => {
-                const arg_type = data.argument_type
+                const arg_type = this.data.argument_type
                 const subparam = subparams[arg_type]
 
                 if (!subparam) {
@@ -146,11 +162,11 @@ export const subparams = {
                         `<input class="_val" type="text" value="${escapeHtml(preset)}">`
                     )
                 } else {
-                    node.find('._items').append(subparam.renderValue(data))
+                    node.find('._items').append(subparam.render(this.data))
                 }
             }
 
-            const _default = data.default ?? ['']
+            const _default = this.data.default ?? ['']
             _default.forEach(item => {
                 addItem(item)
             })

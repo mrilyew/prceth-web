@@ -1,9 +1,10 @@
-import MessageBox from "./utils/MessageBox.js"
+import MessageBox from "./ui/MessageBox.js"
 import tr from "./langs/locale.js"
 import app from "./app.js"
+import { escapeHtml } from "./utils/utils.js"
 
 export const api = new class {
-    async act(params = {}) {
+    async act(params = {}, error_alert = true) {
         try {
             const res = await app.ws_connection.act(params)
 
@@ -11,12 +12,15 @@ export const api = new class {
 
             return res
         } catch(e) {
-            const msg = new MessageBox({
-                title: tr("exceptions.error_title"),
-                body: tr("exceptions.error_net_description", DOMPurify.sanitize(e)),
-                buttons: ['ok'],
-                callbacks: [() => {}],
-            })
+            if (error_alert) {
+                const msg = new MessageBox({
+                    title: tr("exceptions.error_title"),
+                    body: tr("exceptions.error_api_description", escapeHtml(e.exception_name), escapeHtml(e.message)),
+                    buttons: ['ok'],
+                    callbacks: [() => {}],
+                })
+            }
+
             throw e
         }
     }

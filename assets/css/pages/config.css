@@ -1,0 +1,25 @@
+#config_page {
+    padding: 7px 0px 0px 0px;
+}
+
+#config_page .category .category_name {
+    padding: 10px 10px;
+    margin: 0px 10px;
+    border-bottom: 1px solid var(--head-lighter);
+}
+
+#config_page #header {
+    background: var(--head-lighter);
+    padding: 10px 10px;
+}
+
+#config_page #editing_disabled {
+    padding: 130px 0px;
+    display: flex;
+    justify-content: center;
+    background: repeating-linear-gradient(50deg, var(--head-lighter-2), transparent 100px);
+}
+
+#config_page .category .items {
+    padding: 0px 25px 10px 25px;
+}

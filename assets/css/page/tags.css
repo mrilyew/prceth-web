@@ -3,3 +3,7 @@ a, h1, p {
     margin: 0;
     color: var(--text);
 }
+
+.underline {
+    text-decoration: underline;
+}

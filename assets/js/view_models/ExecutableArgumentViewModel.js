@@ -1,8 +1,11 @@
 import {proc_strtr, escapeHtml} from "../utils/utils.js"
+import subparams from "../resources/subparams.js"
+import ViewModel from "./ViewModel.js"
 
-class ExecutableArgumentViewModel {
-    render(i, argument_class) {
-        const data = i.data
+class ExecutableArgumentViewModel extends ViewModel {
+    render(i) {
+        const data = this.item.data
+        const argument_class = subparams[data.type]
 
         const _f = u(`
             <div class="argument_listitem" data-name="${escapeHtml(data.name)}">
@@ -34,7 +37,10 @@ class ExecutableArgumentViewModel {
         }
 
         if (has_class) {
-            _f.find(".argument_value").append(argument_class.renderValue(data)).attr("data-type", data.type)
+            this.argument_class = new argument_class(_f.find(".argument_value"), this.item)
+            this.argument_class.render({})
+
+            _f.find(".argument_value").attr("data-type", data.type)
         }
 
         if (is_required) {
@@ -42,7 +48,32 @@ class ExecutableArgumentViewModel {
             _f.find(".argument_about .common_name").append(`<span>*</span>`)
         }
 
+        this.container.append(_f)
+        this.node = _f
+
+        // Argument visual toggler
+        u(_f).on('click', ".argument_about .argument_listitem_icon", (e) => {
+            u(e.target).closest(".argument_listitem").toggleClass('hidden')
+        })
+
         return _f
+    }
+
+    collectValue() {
+        const val_node = this.node.find('.argument_value')
+        const __type = val_node.attr("data-type")
+        const value = this.argument_class.recieveValue(this.node.nodes[0])
+
+        if (Number(this.node.attr("data-required")) == 1) {
+            if (value == null || String(value).length == 0) {
+                type.focus(this.node)
+                throw new Error()
+            }
+        }
+
+        if (value != undefined) {
+            return value
+        }
     }
 }
 

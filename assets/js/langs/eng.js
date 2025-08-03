@@ -11,6 +11,7 @@ const eng = {
     "nav.content": "Content",
     "nav.executables": "Executables",
     "nav.executable": "Executable",
+    "nav.config": "Config",
 
     "content.search_tip": "Search by name and descriptions...",
     "content.title": "Content",
