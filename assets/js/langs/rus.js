@@ -4,6 +4,9 @@ const rus = {
     "main.common": "Пустая страница",
     "main.not_found": "Не найдено",
 
+    "messagebox.yes": "Да",
+    "messagebox.no": "Нет",
+
     "nav.add": "Добавить",
     "nav.statistics": "Статистика",
     "nav.test": "Отладка",
@@ -12,6 +15,7 @@ const rus = {
     "nav.executables": "Скрипты",
     "nav.executable": "Исполняемое",
     "nav.config": "Настройки",
+    "nav.all_pages": "Все страницы",
 
     "content.search_tip": "Поиск произойдёт по названию и описаниям внутри...",
     "content.title": "Содержимое",
@@ -33,6 +37,8 @@ const rus = {
     "exceptions.error_api_description": "Возникла ошибка с типом <b>$1</b>. <br> Текст: $2",
     "exceptions.error_net_description": "Текст ошибки: $1. Возможно, сервер отключился?",
     "exceptions.websocket_connection_failed": "Ошибка подключения WebSockets",
+    "exceptions.websocket_connection_closed": "Соединение закрыто",
+    "exceptions.websocket_connection_closed_desc": "Возможно, сервер выключился. Переподключиться?",
 
     "logger.show_ignored": "Показать скрытые категории",
     "logger.no_logs": "Логов на данный момент нет.",
@@ -45,6 +51,7 @@ const rus = {
     "config.env": "Переменные",
     "config.exception.editing_disabled": "Редактирование запрещено в конфиге",
     "config.save": "Сохранить",
+    "config.page.title": "Страница редактирования конфига",
 
     "config.category.ui": "Интерфейс",
     "config.category.net": "Веб-функционал",

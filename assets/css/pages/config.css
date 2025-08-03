@@ -23,3 +23,9 @@
 #config_page .category .items {
     padding: 0px 25px 10px 25px;
 }
+
+#config_page .env_element {
+    display: flex;
+    padding: 11px 11px;
+    gap: 11px;
+}

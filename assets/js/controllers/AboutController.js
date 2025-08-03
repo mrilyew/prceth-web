@@ -2,6 +2,7 @@ import BaseController from "./BaseController.js"
 import MessageBox from "../ui/MessageBox.js"
 import tr from "../langs/locale.js"
 import api from "../api.js"
+import routes from "../resources/routes.js"
 
 export class AboutController extends BaseController {
     async main(container) {
@@ -55,6 +56,18 @@ export class AboutController extends BaseController {
             </div>
         `)
         container.title(tr("statistics"))
+    }
+
+    async pages_list(container) {
+        container.node.html(`
+            <div id="all_pages" style="margin:10px;"></div>    
+        `)
+
+        routes.forEach(el => {
+            container.node.find("#all_pages").append(`
+                <p><a href="#${el.route}">${el.route}</a></p>
+            `)
+        })
     }
 }
 

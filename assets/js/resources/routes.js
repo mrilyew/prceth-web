@@ -61,6 +61,11 @@ export const routes = [
         'method': 'index'
     },
     {
+        'route': 'all',
+        'class': (new AboutController),
+        'method': 'pages_list'
+    },
+    {
         'route': 'not_found',
         'class': (new AboutController),
         'method': 'not_found'

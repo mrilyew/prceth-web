@@ -1,6 +1,7 @@
 import tr from "./langs/locale.js"
 import router from "./router.js"
 import Container from "./ui/Container.js"
+import MessageBox from "./ui/MessageBox.js"
 import ApiError from "./exceptions/ApiError.js"
 
 // class that represents page
@@ -67,21 +68,19 @@ export const app = new class {
                 }
             }
 
-            this.ws.onclose = (event) => {
+            const _er = (_in) => {
                 this.callback_dictionary = {}
-
-                setTimeout(() => this.connect(), 200)
-            }
-
-            this.ws.onerror = (err) => {
                 const msg = new MessageBox({
-                    title: tr("exceptions.websocket_connection_failed"),
-                    body: tr("exceptions.error_net_description", DOMPurify.sanitize(e)),
-                    buttons: ['ok'],
-                    callbacks: [() => {}],
+                    title: tr("exceptions.websocket_connection_closed"),
+                    body: tr("exceptions.websocket_connection_closed_desc"),
+                    buttons: [tr("messagebox.yes"), tr("messagebox.no")],
+                    callbacks: [() => {
+                        this.connect()
+                    }, () => {}],
                 })
-                console.error(err)
             }
+            this.ws.onclose = _er
+            this.ws.onerror = _er
         }
 
         increment_index() {
@@ -153,7 +152,7 @@ export const app = new class {
                             <a href="#stat">${tr('nav.statistics')}</a>
                             <a href="#logs">${tr('nav.logs')}</a>
                             <a href="#config">${tr('nav.config')}</a>
-                            <a href="#test">${tr('nav.test')}</a>
+                            <a href="#all">${tr('nav.all_pages')}</a>
                         </div>
                     </div>
 

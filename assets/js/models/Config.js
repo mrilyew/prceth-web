@@ -8,6 +8,12 @@ class Config extends Model {
         }, false)
     }
 
+    static async env_list() {
+        return await api.act({
+            "i": "App.RecieveEnv"
+        }, false)
+    }
+
     static categories_from_args(args) {
         const all_categories = []
 
@@ -24,6 +30,14 @@ class Config extends Model {
     static async update(new_data) {
         return await api.act({
             "i": "App.UpdateConfig",
+            "values": JSON.stringify(new_data)
+        }, false)
+    }
+
+    static async update_env(new_data) {
+        return await api.act({
+            "i": "App.UpdateConfig",
+            "type": "env",
             "values": JSON.stringify(new_data)
         }, false)
     }
