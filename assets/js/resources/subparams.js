@@ -1,5 +1,6 @@
 import {proc_strtr, escapeHtml} from "../utils/utils.js"
 import tr from "../langs/locale.js"
+import ExecutableArgument from "../models/ExecutableArgument.js"
 
 class SubArgument {
     constructor(container, data) {
@@ -174,7 +175,7 @@ export const subparams = {
                 const orig_arg = this.data.original_arg
                 const arg_type = orig_arg["type"] ?? "StringArgument"
                 const subparam_class = subparams[arg_type]
-                const subparam = new subparam_class(node.find('._items'), this.data)
+                const subparam = new subparam_class(node.find('._items'), new ExecutableArgument(orig_arg))
 
                 subparam.render()
                 subparam.focus()

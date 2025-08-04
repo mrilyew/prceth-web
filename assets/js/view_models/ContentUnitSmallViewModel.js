@@ -17,7 +17,7 @@ class ContentUnitSmallViewModel {
                         </div>
                     </div>
 
-                    <div class="toggle_icon"></div>
+                    <div class="toggle_block"><div class="toggle_icon"></div></div>
                 </a>
                 <div class="data">
                     <div class="data_table flex"></div>
