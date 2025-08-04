@@ -77,4 +77,10 @@ export function tr(string, ...args) {
     }
 }
 
+export function tr_fallback(string, fallback) {
+    const res = tr(string)
+
+    return res === "@"+string ? fallback : res
+}
+
 export default tr

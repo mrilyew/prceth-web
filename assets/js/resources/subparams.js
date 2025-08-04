@@ -7,41 +7,44 @@ class SubArgument {
         this.data = data
     }
 
-    recieveValue(node) {
-        return node.querySelector('._val').value
+    recieveValue() {
+        return this.node.nodes[0].value
     }
 
-    focus(node) {
-        return node.querySelector('._val').focus()
+    focus() {
+        return this.node.nodes[0].focus()
     }
 }
 
 export const subparams = {
     'StringArgument': class StringArgument extends SubArgument {
         render(i) {
+            const data = this.data.data
+
             let _u = u(`
                 <input class="_val" type="text">
             `)
 
-            if (this.data.is_long == true) {
+            if (data.is_long == true) {
                 _u = u(`
                     <textarea class="_val"></textarea>
                 `)
             }
 
-            if (this.data.default != null) {
-                if (this.data.is_long != true) {
-                    _u.attr("value", this.data.default)
+            if (data.default != null) {
+                if (data.is_long != true) {
+                    _u.attr("value", data.default)
                 } else {
-                    _u.html(escapeHtml(this.data.default))
+                    _u.html(escapeHtml(data.default))
                 }
             }
 
-            if (this.data.env_property != null) {
+            if (data.env_property != null) {
                 _u.attr("placeholder", tr("executables.env_value", escapeHtml(data.env_property)))
             }
 
             this.container.append(_u)
+            this.node = _u
 
             return _u
         }
@@ -57,6 +60,7 @@ export const subparams = {
             }
 
             this.container.append(_u)
+            this.node = _u
 
             return _u
         }
@@ -70,6 +74,9 @@ export const subparams = {
             if (this.data.default != null) {
                 _u.attr("value", this.data.default)
             }
+
+            this.container.append(_u)
+            this.node = _u
 
             return _u
         }
@@ -94,12 +101,13 @@ export const subparams = {
             }
 
             this.container.append(_u)
+            this.node = _u
 
             return _u
         }
 
-        recieveValue(node) {
-            return node.querySelector('._val input:checked').value
+        recieveValue() {
+            return this.node.closest(".argument_value").find('._val input:checked').nodes[0].value
         }
     },
     'BooleanArgument': class BooleanArgument extends SubArgument {
@@ -113,12 +121,13 @@ export const subparams = {
             }
 
             this.container.append(_u)
+            this.node = _u
 
             return _u
         }
 
-        recieveValue(node) {
-            return Number(node.querySelector('._val').checked == true)
+        recieveValue() {
+            return Number(this.node.closest(".argument_value").find('._val').nodes[0].checked == true)
         }
     },
     'JsonArgument': class JsonArgument extends SubArgument {
@@ -132,37 +141,60 @@ export const subparams = {
             }
 
             this.container.append(_u)
+            this.node = _u
 
             return _u
         }
     },
     'CsvArgument': class CsvArgument extends SubArgument {
+        subs = []
+
         render(i) {
             let _u = u(`
                 <div>
-                    <div class="flex" style="gap: 7px;">
+                    <div class="csv_argument">
                         <div style="gap: 7px;" class="column wide _items"></div>
-                        <input type="button" class="fit _add_icon" value="+">
+                        <div class="flex" style="gap: 7px;">
+                            <input type="button" class="fit act_btn _add_icon" value="+">
+                            <input type="button" class="fit act_btn _rem_icon" value="-">
+                        </div>
                     </div>
                 </div>
             `)
 
             this.container.append(_u)
+            this.node = _u
             this.events(_u)
 
             return _u
         }
         events(node) {
             const addItem = (preset) => {
-                const arg_type = this.data.argument_type
-                const subparam = subparams[arg_type]
+                // messy code but ok
+                const orig_arg = this.data.original_arg
+                const arg_type = orig_arg["type"] ?? "StringArgument"
+                const subparam_class = subparams[arg_type]
+                const subparam = new subparam_class(node.find('._items'), this.data)
 
-                if (!subparam) {
-                    node.find('._items').append(
-                        `<input class="_val" type="text" value="${escapeHtml(preset)}">`
-                    )
-                } else {
-                    node.find('._items').append(subparam.render(this.data))
+                subparam.render()
+                subparam.focus()
+
+                subparam.node.on('keydown', (e) => {
+                    if (e.key == 'Backspace' && this.subs.length > 1) {
+                        removeItem(subparam)
+                    }
+                })
+
+                this.subs.push(subparam)
+            }
+
+            const removeItem = (subparam) => {
+                subparam.node.remove()
+                this.subs = this.subs.filter(item => item !== subparam)
+
+                const prev_node = this.subs[this.subs.length - 1]
+                if (prev_node) {
+                    prev_node.node.nodes[0].focus()
                 }
             }
 
@@ -171,26 +203,21 @@ export const subparams = {
                 addItem(item)
             })
 
-            u(node).on('click', '._add_icon', (e) => {
+            node.on('click', '._add_icon', (e) => {
                 addItem('')
             })
 
-            u(node).find(".argument_value").on('keyup', "input[type='text']", (e) => {
-                if (e.key == 'Backspace' && e.target.value.length == 0) {
-                    if (e.target.previousSibling) {
-                        e.target.previousSibling.focus()
-                        u(e.target).remove()
-                    }
+            node.on('click', '._rem_icon', (e) => {
+                if (this.subs.length > 0) {
+                    removeItem(this.subs[this.subs.length - 1])
                 }
             })
         }
 
-        recieveValue(node) {
+        recieveValue() {
             const vals = []
-            node.querySelectorAll(".argument_value input[type='text']").forEach(el => {
-                if (el.value != "") {
-                    vals.push(el.value)
-                }
+            this.subs.forEach(el => {
+                vals.push(el.recieveValue())
             })
 
             if (vals.length == 0) {
@@ -203,5 +230,6 @@ export const subparams = {
 }
 
 subparams['ObjectArgument'] = subparams['JsonArgument']
+subparams['ContentUnitArgument'] = subparams['StringArgument']
 
 export default subparams

@@ -2,6 +2,8 @@ import {proc_strtr, escapeHtml} from "../utils/utils.js"
 import subparams from "../resources/subparams.js"
 import ViewModel from "./ViewModel.js"
 
+class FocusError extends Error {}
+
 class ExecutableArgumentViewModel extends ViewModel {
     render(i) {
         const data = this.item.data
@@ -22,7 +24,7 @@ class ExecutableArgumentViewModel extends ViewModel {
         const has_docs = data.docs != null
         const has_described_name = has_docs && data.docs.name != null
         const has_class = argument_class != null
-        const is_required = i.is_required
+        const is_required = this.item.is_required
 
         if (has_described_name) {
             _f.find(".argument_about .name_place").append(`<span class="common_name"><b>${escapeHtml(data.docs.name)}</b></span><b class="redded">&nbsp;${proc_strtr(escapeHtml(data.name), 500)}</b>`)
@@ -66,8 +68,8 @@ class ExecutableArgumentViewModel extends ViewModel {
 
         if (Number(this.node.attr("data-required")) == 1) {
             if (value == null || String(value).length == 0) {
-                type.focus(this.node)
-                throw new Error()
+                this.argument_class.focus()
+                throw new FocusError()
             }
         }
 

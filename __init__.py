@@ -19,7 +19,7 @@ settings = {
     "websocket_ping_timeout": 10,
 }
 
-# Checking npm modules installed
+# Checking if npm modules installed
 
 cwd = Path.cwd()
 cwd_web = Path.joinpath(cwd, "app").joinpath("Views").joinpath("Web")
@@ -131,6 +131,8 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
                         "payload": response
                     }))
                 except Exception as _e:
+                    print(traceback.format_exc())
+
                     self.write_message(dump_json({
                         "type": message_type,
                         "event_index": message_index,

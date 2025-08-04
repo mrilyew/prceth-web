@@ -32,3 +32,18 @@
     background: var(--head-lighter-2);
     border-bottom: 1px solid var(--status-border);
 }
+
+.page-subhead {
+    background: var(--head-lighter-2);
+    border-bottom: 1px solid var(--head);
+}
+
+.csv_argument {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.csv_argument .act_btn {
+    max-width: 30px;
+}

@@ -16,6 +16,10 @@ class ExecutableArgument extends Model {
         return this.data.name
     }
 
+    get localized_name() {
+        return this.data["docs"]["name"] ?? this.name
+    }
+
     get default() {
         if (this.data.current) {
             return this.data.current
@@ -26,6 +30,10 @@ class ExecutableArgument extends Model {
 
     get docs() {
         return this.data.docs
+    }
+
+    get original_arg() {
+        return this.data.orig
     }
 
     get is_hidden() {

@@ -6,7 +6,7 @@
     border-bottom: unset;
 }
 
-.scroll_element .scroll_element_title:hover {
+.scroll_element .scroll_element_title .name:hover, .scroll_element .scroll_element_title .toggle_block:hover {
     background: var(--head-lighter-2);
 }
 
@@ -14,7 +14,10 @@
     display: grid;
     grid-template-columns: 1fr 0fr;
     justify-content: space-between;
-    padding: 6px 15px;
+}
+
+.scroll_element .scroll_element_title .name {
+    padding: 6px 6px 6px 15px;
 }
 
 .scroll_element .scroll_element_title .representation_name {
@@ -31,32 +34,58 @@
     background-position: 0px -124px;
 }
 
-.content_unit_item .data {
-    padding: 5px 5px 15px 5px;
+.scroll_element .toggle_block {
+    display: flex;
+    align-items: center;
+    padding: 0px 6px 0px 6px;
+}
+
+.scroll_element .data {
+    padding: 5px 15px 10px 15px;
     display: none;
 }
 
-.content_unit_item .data .data_table {
+.scroll_element .data .data_table {
     flex-direction: column;
     gap: 10px;
 }
 
-.content_unit_item .data .data_table_column {
+.scroll_element .data .data_table_column {
     display: flex;
     flex-direction: column;
     gap: 3px;
     width: 100%;
 }
 
-.content_unit_item .data .data_table_column b {
+.scroll_element .data .data_table_column b {
     border-bottom: 1px solid var(--head-lighter);
     padding: 0px 0px 4px 0px;
 }
 
-.content_unit_item.shown .data {
+.scroll_element.shown .data {
     display: block;
 }
 
-.content_unit_item.shown .toggle_icon {
+.scroll_element.shown .toggle_icon {
     background-position: -16px -124px;
+}
+
+.scroll_element .data_args .data_arg {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.scroll_element .data_args .data_arg .list_block {
+    width: 5px;
+    height: 5px;
+    background: var(--head-2);
+}
+
+.scroll_element .data_args .data_arg b {
+    margin-top: -4px;
+}
+
+.scroll_element .data .data_description {
+    padding: 0px 0px 5px 0px;
 }

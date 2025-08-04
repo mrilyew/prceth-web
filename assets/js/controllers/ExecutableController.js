@@ -4,8 +4,8 @@ import app from "../app.js"
 import api from "../api.js"
 import Executable from "../models/Executable.js"
 import subparams from "../resources/subparams.js"
-import {create_json_viewer} from "../utils/utils.js"
-import tr from "../langs/locale.js"
+import {create_json_viewer, escapeHtml} from "../utils/utils.js"
+import {tr, tr_fallback} from "../langs/locale.js"
 import ExecutableViewModel from "../view_models/ExecutableViewModel.js"
 import ExecutableArgumentViewModel from "../view_models/ExecutableArgumentViewModel.js"
 
@@ -15,8 +15,8 @@ const createable = ["extractor", "representation"]
 export class ExecutableController extends BaseController {
     async list(container) {
         const context = router.url.getParam('cx') ?? null
-        const default_for_context = context != "add" ? "act" : "representation"
         const selected_tab = router.url.getParam('tab')
+        const default_for_context = context != "add" ? "act" : "representation"
 
         let current_tab = selected_tab ?? default_for_context
         if (!upper_categories.includes(current_tab)) {
@@ -27,8 +27,8 @@ export class ExecutableController extends BaseController {
             getCategories(list) {
                 const categories = []
                 list.forEach(el => {
-                    if (!categories.includes(el.data.category)) {
-                        categories.push(el.data.category)
+                    if (!categories.includes(el.category)) {
+                        categories.push(el.category)
                     }
                 })
 
@@ -40,9 +40,11 @@ export class ExecutableController extends BaseController {
 
                 // creating categories tabs
                 categories.forEach(current_category => {
+                    const current_category_name = tr_fallback("executables.category."+current_category, current_category)
+
                     cont.append(`
-                        <div data-cat="${DOMPurify.sanitize(current_category)}" class="category">
-                            <div class="category_name">${DOMPurify.sanitize(current_category)}</div>
+                        <div data-cat="${escapeHtml(current_category)}" class="category">
+                            <div class="category_name">${escapeHtml(current_category_name)}</div>
                             <div class="category_items"></div>
                         </div>
                     `)
@@ -50,8 +52,7 @@ export class ExecutableController extends BaseController {
                     list.forEach(el => {
                         const element_category = el.data.category
                         if (element_category == current_category) {
-                            const new_view = (new ExecutableViewModel).render(el, {"context": context})
-                            cont.find(`.category[data-cat='${DOMPurify.sanitize(current_category)}'] .category_items`).append(new_view)
+                            new ExecutableViewModel(cont, el).render({"context": context})
                         }
                     })
                 })
@@ -103,8 +104,6 @@ export class ExecutableController extends BaseController {
             </div>
         `)
 
-        ui_list.draw(_u.find(".container_items"), executables_list)
-        ui_upper.draw(upper_categories, context, _u.find(".horizontal_mini_tabs"))
         if (context == "add") {
             ui_upper_note.addition_text(_u.find(".upper_note"))
         } else {
@@ -114,10 +113,21 @@ export class ExecutableController extends BaseController {
         container.set(_u.html())
         container.title(tr("nav.executables"))
 
+        ui_list.draw(container.node.find(".container_items"), executables_list)
+        ui_upper.draw(upper_categories, context, container.node.find(".horizontal_mini_tabs"))
+
         u('#container_search #search_bar').nodes[0].focus()
         u('#container_search').on('input', '#search_bar', (e) => {
             const query = e.target.value
-            const itms = executables_list.filter(el => el.data.class_name.toLowerCase().includes(query.toLowerCase()))
+            const itms = executables_list.filter(el => {
+                let found = false
+                const blocks = [el.full_name, el.localized_name]
+                blocks.forEach(_el => {
+                    found = _el.toLowerCase().includes(query.toLowerCase())
+                })
+
+                return found
+            })
 
             u(".container_items").html('')
             ui_list.draw(u(".container_items"), itms)
@@ -147,6 +157,7 @@ export class ExecutableController extends BaseController {
         const variants = executable.data.variants
         const executable_type = type.slice(0, type.length - 1)
         const docs = executable.data['docs']
+        let models = []
         let extra_ext = null
         let full_name = `${type}.${category}.${name}`
 
@@ -155,13 +166,20 @@ export class ExecutableController extends BaseController {
         }
 
         const args = new class {
+            emptyList() {
+                models = []
+            }
+
             putArgs(container, args) {
                 args.forEach(arg => {
                     if (arg.is_hidden) {
                         return
                     }
 
-                    (new ExecutableArgumentViewModel(container, arg)).render({})
+                    const modl = (new ExecutableArgumentViewModel(container, arg))
+                    modl.render({})
+
+                    models.push(modl)
                 })
             }
 
@@ -183,24 +201,10 @@ export class ExecutableController extends BaseController {
                 })
             }
 
-            collect(nodes) {
+            collect() {
                 const vals = {}
-                nodes.forEach(nd => {
-                    const val_node = nd.querySelector('.argument_value')
-                    const __type = val_node.dataset.type
-                    const type = subparams[__type]
-                    const value = type.recieveValue(nd)
-
-                    if (Number(nd.dataset.required) == 1) {
-                        if (value == null || String(value).length == 0) {
-                            type.focus(nd)
-                            throw new Error()
-                        }
-                    }
-
-                    if (value != undefined) {
-                        vals[nd.dataset.name] = value
-                    }
+                models.forEach(nd => {
+                    vals[nd.item.name] = nd.collectValue()
                 })
 
                 return vals
@@ -234,6 +238,7 @@ export class ExecutableController extends BaseController {
         container.set(_u.html())
         container.title(DOMPurify.sanitize(full_name))
 
+        args.emptyList()
         args.putArgs(u('#args'), executable.args)
 
         if (extra_ext) {
@@ -251,6 +256,7 @@ export class ExecutableController extends BaseController {
 
             u('#args').html('')
 
+            args.emptyList()
             if (index == 'all') {
                 args.putArgs(u('#args'), executable.args)
             } else {
@@ -274,9 +280,8 @@ export class ExecutableController extends BaseController {
             let out_args = null
 
             try {
-                out_args = args.collect(itms.nodes)
+                out_args = args.collect()
             } catch(e) {
-                console.error(e)
                 return
             }
 

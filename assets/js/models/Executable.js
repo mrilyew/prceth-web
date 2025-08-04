@@ -39,6 +39,14 @@ export class Executable extends Model {
         return this.data.category
     }
 
+    get class_name() {
+        return this.data.class_name
+    }
+
+    get description() {
+        return this.docs.definition
+    }
+
     get name() {
         return this.data.name
     }
@@ -48,7 +56,23 @@ export class Executable extends Model {
     }
 
     get docs() {
-        return this.data.docs
+        return this.data.docs ?? {}
+    }
+
+    get full_name() {
+        const type = this.sub
+        const category = this.category
+        const name = this.name
+
+        return `${type}.${category}.${name}`
+    }
+
+    get localized_name() {
+        return this.docs.name ?? this.full_name
+    }
+
+    get category_name() {
+        return this.data.category + '.' + this.data.name
     }
 
     get args() {

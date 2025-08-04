@@ -1,22 +1,54 @@
 import {proc_strtr, escapeHtml} from "../utils/utils.js"
+import ViewModel from "./ViewModel.js"
 
-class ExecutableViewModel {
-    render(i, args) {
-        const data = i.data
+class ExecutableViewModel extends ViewModel {
+    render(args) {
         const context = args['context']
-        let link = `#execute?name=${escapeHtml(data.class_name)}`
-
+        let link = `#execute?name=${escapeHtml(this.item.class_name)}`
         if (context) {
             link += `&context=${context}`
         }
 
-        return u(`
+        const _el = u(`
             <div class="scroll_element no_overflow">
                 <a href="${link}" class="scroll_element_title">
-                    <b>${proc_strtr(escapeHtml(data.category + '.' + data.name), 500)}</b>
+                    <div class="name">
+                        <b>${proc_strtr(escapeHtml(this.item.localized_name), 500)}</b>
+                    </div>
+
+                    <div class="toggle_block"><div class="toggle_icon"></div></div>
                 </a>
+                <div class="data">
+                    <div class="data_description">
+                        ${this.item.description}
+                    </div>
+                    <div class="data_args"></div>
+                </div>
             </div>
         `)
+
+        this.item.args.forEach(el => {
+            const localized_name = el.localized_name
+            const orig_name = el.name
+
+            _el.find(".data_args").append(`
+                <div class="data_arg">
+                    <div class="list_block"></div>
+                    <span><b>${localized_name}</b>${localized_name != orig_name ? " (" + orig_name + ")" : ""}</span>
+                </div>
+            `)
+        })
+
+        this.container.append(_el)
+        this.node = _el
+
+        _el.on("click", ".toggle_block", (e) => {
+            e.preventDefault()
+
+            u(e.target).closest(".scroll_element").toggleClass("shown")
+        })
+
+        return _el
     }
 }
 
