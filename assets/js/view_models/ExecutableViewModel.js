@@ -20,7 +20,7 @@ class ExecutableViewModel extends ViewModel {
                 </a>
                 <div class="data">
                     <div class="data_description">
-                        ${this.item.description}
+                        ${escapeHtml(this.item.description)}
                     </div>
                     <div class="data_args"></div>
                 </div>
@@ -34,7 +34,7 @@ class ExecutableViewModel extends ViewModel {
             _el.find(".data_args").append(`
                 <div class="data_arg">
                     <div class="list_block"></div>
-                    <span><b>${localized_name}</b>${localized_name != orig_name ? " (" + orig_name + ")" : ""}</span>
+                    <span><b>${escapeHtml(localized_name)}</b>${escapeHtml(localized_name != orig_name ? " (" + orig_name + ")" : "")}</span>
                 </div>
             `)
         })

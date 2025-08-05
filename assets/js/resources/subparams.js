@@ -32,11 +32,11 @@ export const subparams = {
                 `)
             }
 
-            if (data.default != null) {
+            if (this.data.default != null) {
                 if (data.is_long != true) {
-                    _u.attr("value", data.default)
+                    _u.attr("value", this.data.default)
                 } else {
-                    _u.html(escapeHtml(data.default))
+                    _u.html(escapeHtml(this.data.default))
                 }
             }
 
@@ -84,11 +84,12 @@ export const subparams = {
     },
     'LimitedArgument': class LimitedArgument extends SubArgument {
         render(i) {
+            const keys = this.data.data
             let _u = u(`
                 <div class="_val"></div>
             `)
 
-            this.data.values.forEach(itm => {
+            keys.values.forEach(itm => {
                 let name = escapeHtml(itm)
                 if (this.data.docs && this.data.docs['values'] && this.data.docs.values[itm]) {
                     name = this.data.docs.values[itm]
@@ -173,6 +174,7 @@ export const subparams = {
             const addItem = (preset) => {
                 // messy code but ok
                 const orig_arg = this.data.original_arg
+                console.log(this.data)
                 const arg_type = orig_arg["type"] ?? "StringArgument"
                 const subparam_class = subparams[arg_type]
                 const subparam = new subparam_class(node.find('._items'), new ExecutableArgument(orig_arg))

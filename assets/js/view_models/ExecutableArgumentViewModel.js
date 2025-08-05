@@ -45,7 +45,7 @@ class ExecutableArgumentViewModel extends ViewModel {
             _f.find(".argument_value").attr("data-type", data.type)
         }
 
-        if (is_required) {
+        if (is_required && i.required == true) {
             _f.attr("data-required", "1")
             _f.find(".argument_about .common_name").append(`<span>*</span>`)
         }
@@ -54,7 +54,7 @@ class ExecutableArgumentViewModel extends ViewModel {
         this.node = _f
 
         // Argument visual toggler
-        u(_f).on('click', ".argument_about .argument_listitem_icon", (e) => {
+        _f.on('click', ".argument_about .argument_listitem_icon", (e) => {
             u(e.target).closest(".argument_listitem").toggleClass('hidden')
         })
 

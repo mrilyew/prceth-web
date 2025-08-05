@@ -27,16 +27,20 @@
     padding: 15px 15px;
 }
 
+#container #addit {
+    padding: 7px 0px 0px 0px;
+}
+
 .upper_note {
-    padding: 8px 6px;
+    padding: 10px 15px;
     background: var(--head-lighter-2);
     border-bottom: 1px solid var(--status-border);
 }
 
-.page-subhead {
+/*.page-subhead {
     background: var(--head-lighter-2);
     border-bottom: 1px solid var(--head);
-}
+}*/
 
 .csv_argument {
     display: flex;

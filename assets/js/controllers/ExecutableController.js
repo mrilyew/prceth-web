@@ -8,6 +8,7 @@ import {create_json_viewer, escapeHtml} from "../utils/utils.js"
 import {tr, tr_fallback} from "../langs/locale.js"
 import ExecutableViewModel from "../view_models/ExecutableViewModel.js"
 import ExecutableArgumentViewModel from "../view_models/ExecutableArgumentViewModel.js"
+import ExecutableArgument from "../models/ExecutableArgument.js"
 
 const upper_categories = ["act", "extractor", "representation"]
 const createable = ["extractor", "representation"]
@@ -154,7 +155,6 @@ export class ExecutableController extends BaseController {
         const type = executable.sub
         const category = executable.category
         const name = executable.name
-        const variants = executable.data.variants
         const executable_type = type.slice(0, type.length - 1)
         const docs = executable.data['docs']
         let models = []
@@ -166,8 +166,19 @@ export class ExecutableController extends BaseController {
         }
 
         const args = new class {
+            constructor() {
+                this.items = executable.args ?? []
+
+                if (extra_ext) {
+                    this.items = this.items.concat(extra_ext.args.slice(1))
+                }
+
+                console.log(this.items)
+            }
+
             emptyList() {
                 models = []
+                u('#args').html('')
             }
 
             putArgs(container, args) {
@@ -177,27 +188,11 @@ export class ExecutableController extends BaseController {
                     }
 
                     const modl = (new ExecutableArgumentViewModel(container, arg))
-                    modl.render({})
+                    modl.render({
+                        "required": arg.still_require ?? false
+                    })
 
                     models.push(modl)
-                })
-            }
-
-            putVariants(node, variants) {
-                let index = 0
-
-                node.html(`
-                    <div class="horizontal_sub_tabs">
-                        <a class="selected" data-tab="all">${tr("executables.args.all")}</a>
-                    </div>
-                `)
-
-                variants.forEach(variant => {
-                    node.find(".horizontal_sub_tabs").append(`
-                        <a data-tab="${index}">${DOMPurify.sanitize(variant.name)}</a>
-                    `)
-
-                    index+=1
                 })
             }
 
@@ -210,12 +205,64 @@ export class ExecutableController extends BaseController {
                 return vals
             }
         }
+        const variants = new class {
+            constructor() {
+                this.items = executable.data.variants ?? []
+            }
+
+            renderTabs(container) {
+                // fffffuuuu
+                const names = []
+                Object.values(args.items).forEach(itm => {
+                    names.push(itm.name)
+                })
+
+                this.items.push({
+                    "name": tr("executables.args.all"),
+                    "list": names
+                })
+
+                container.html(`
+                    <div class="horizontal_sub_tabs"></div>
+                `)
+
+                this.items.forEach(variant => {
+                    const _u = u(`<a>${escapeHtml(variant.name)}</a>`)
+                    container.find(".horizontal_sub_tabs").append(_u)
+
+                    variant["node"] = _u
+
+                    _u.on('click', (e) => {
+                        args.emptyList()
+                        this.selectTab(variant)
+                    })
+                })
+            }
+
+            selectTab(variant) {
+                const tab = variant.node
+                const tabs = tab.closest('.horizontal_sub_tabs')
+
+                tabs.find('a').removeClass('selected')
+                tab.addClass('selected')
+
+                const list = variant.list
+                const append_list = []
+
+                list.forEach(el => {
+                    const l = args.items.find(item => item.name == el)
+                    append_list.push(l)
+                })
+
+                args.putArgs(u('#args'), append_list)
+            }
+        }
 
         const _u = u(`
             <div>
                 <div class="between">
                     <div>
-                        <div class="page-head">
+                        <div class="page-head volume">
                             <b>${DOMPurify.sanitize(docs.name ?? full_name)}</b>
                         </div>
                         <div class="page-subhead">
@@ -231,46 +278,18 @@ export class ExecutableController extends BaseController {
             </div>
         `)
 
-        if (variants && variants.length > 0) {
-            args.putVariants(_u.find("#addit"), variants)
-        }
-
         container.set(_u.html())
         container.title(DOMPurify.sanitize(full_name))
 
-        args.emptyList()
-        args.putArgs(u('#args'), executable.args)
-
-        if (extra_ext) {
-            args.putArgs(u('#args'), extra_ext.args.slice(1))
+        if (variants.items.length > 0) {
+            variants.renderTabs(container.node.find("#addit"))
         }
 
-        // If there are defined argument lists
-        u('#page .horizontal_sub_tabs').on('click', 'a', (e) => {
-            const tab = u(e.target)
-            const tabs = tab.closest('.horizontal_sub_tabs')
-            const index = e.target.dataset.tab
+        args.emptyList()
 
-            tabs.find('a').removeClass('selected')
-            tab.addClass('selected')
-
-            u('#args').html('')
-
-            args.emptyList()
-            if (index == 'all') {
-                args.putArgs(u('#args'), executable.args)
-            } else {
-                const variant = variants[index]
-                const list = variant['list']
-                const append_list = []
-                list.forEach(el => {
-                    const l = executable.args.find(item => item.name == el)
-                    append_list.push(l)
-                })
-
-                args.putArgs(u('#args'), append_list)
-            }
-        })
+        //const select_id = variants.items.length - 1
+        const select_id = 0
+        variants.selectTab(variants.items[select_id])
 
         // Run button
         u(".page-bottom").on('click', '#exec', async (e) => {

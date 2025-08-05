@@ -49,6 +49,11 @@
 
 .argument_listitem .argument_about b {
     display: inline-block;
+    font-size: 15px;
+}
+
+.argument_listitem .argument_about .desc {
+    font-size: 15px;
 }
 
 .argument_listitem .argument_listitem_icon {

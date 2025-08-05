@@ -12,6 +12,18 @@
     box-sizing: border-box;
     position: absolute;
     z-index: 0;
+
+    overflow-y: auto;
+}
+
+#status-bar::-webkit-scrollbar {
+    background: var(--status-border);
+    height: 2px;
+}
+
+#status-bar::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: white;
 }
 
 #status-bar .tab {
@@ -80,7 +92,7 @@
 }
 
 .page-head, .page-subhead {
-    padding: 10px 8px;
+    padding: 10px 16px;
 }
 
 .page-bottom .wide_button {

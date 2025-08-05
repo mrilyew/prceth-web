@@ -82,10 +82,17 @@
     background: var(--head-2);
 }
 
+.scroll_element .data_args .data_arg b, .scroll_element .data_args .data_arg span {
+    margin-bottom: -1px;
+    display: inline-block;
+    font-size: 13px;
+}
+
 .scroll_element .data_args .data_arg b {
     margin-top: -4px;
 }
 
 .scroll_element .data .data_description {
     padding: 0px 0px 5px 0px;
+    font-size: 14px;
 }
