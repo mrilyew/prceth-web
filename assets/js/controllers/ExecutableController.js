@@ -168,12 +168,23 @@ export class ExecutableController extends BaseController {
         const args = new class {
             constructor() {
                 this.items = executable.args ?? []
-
                 if (extra_ext) {
                     this.items = this.items.concat(extra_ext.args.slice(1))
                 }
+            }
 
-                console.log(this.items)
+            fromConfirmation(items) {
+                let out = []
+
+                items.forEach(item => {
+                    out.push(new ExecutableArgument(item))
+                })
+
+                if (extra_ext) {
+                    out = out.concat(extra_ext.args.slice(1))
+                }
+
+                return out
             }
 
             emptyList() {
@@ -188,9 +199,7 @@ export class ExecutableController extends BaseController {
                     }
 
                     const modl = (new ExecutableArgumentViewModel(container, arg))
-                    modl.render({
-                        "required": arg.still_require ?? false
-                    })
+                    modl.render({})
 
                     models.push(modl)
                 })
@@ -206,22 +215,35 @@ export class ExecutableController extends BaseController {
             }
         }
         const variants = new class {
+            current_tab = null
+
             constructor() {
                 this.items = executable.data.variants ?? []
-            }
-
-            renderTabs(container) {
                 // fffffuuuu
                 const names = []
                 Object.values(args.items).forEach(itm => {
+                    if (executable.confirmation.includes(itm.name)) {
+                        return
+                    }
+
                     names.push(itm.name)
                 })
+
+                if (executable.confirmation.length > 0) {
+                    this.items.push({
+                        "name": tr("executables.args.short"),
+                        "list": executable.confirmation,
+                        "is_confirm": true
+                    })
+                }
 
                 this.items.push({
                     "name": tr("executables.args.all"),
                     "list": names
                 })
+            }
 
+            renderTabs(container) {
                 container.html(`
                     <div class="horizontal_sub_tabs"></div>
                 `)
@@ -241,10 +263,13 @@ export class ExecutableController extends BaseController {
 
             selectTab(variant) {
                 const tab = variant.node
-                const tabs = tab.closest('.horizontal_sub_tabs')
 
-                tabs.find('a').removeClass('selected')
-                tab.addClass('selected')
+                if (tab) {
+                    const tabs = tab.closest('.horizontal_sub_tabs')
+
+                    tabs.find('a').removeClass('selected')
+                    tab.addClass('selected')
+                }
 
                 const list = variant.list
                 const append_list = []
@@ -255,6 +280,8 @@ export class ExecutableController extends BaseController {
                 })
 
                 args.putArgs(u('#args'), append_list)
+
+                this.current_tab = variant
             }
         }
 
@@ -281,7 +308,7 @@ export class ExecutableController extends BaseController {
         container.set(_u.html())
         container.title(DOMPurify.sanitize(full_name))
 
-        if (variants.items.length > 0) {
+        if (variants.items.length > 1) {
             variants.renderTabs(container.node.find("#addit"))
         }
 
@@ -293,6 +320,11 @@ export class ExecutableController extends BaseController {
 
         // Run button
         u(".page-bottom").on('click', '#exec', async (e) => {
+            const is_confirmation = variants.current_tab.is_confirm
+            const target = u(e.target)
+
+            target.addClass("unclickable")
+
             app.up()
 
             const itms = u('#args .argument_listitem')
@@ -304,13 +336,27 @@ export class ExecutableController extends BaseController {
                 return
             }
 
+            if (is_confirmation) {
+                out_args["confirm"] = 0
+            }
+
             app.another_side.set("")
 
             const res = await api.executable(executable_type, `${category}.${name}`, out_args)
-            const jsonViewer = create_json_viewer()
-            jsonViewer.data = res
 
-            app.another_side.node.append(jsonViewer)
+            if (is_confirmation) {
+                const __args = args.fromConfirmation(res.tab)
+
+                args.emptyList()
+                args.putArgs(u("#args"), __args)
+            } else {
+                const jsonViewer = create_json_viewer()
+                jsonViewer.data = res
+
+                app.another_side.node.append(jsonViewer)
+            }
+
+            target.removeClass("unclickable")
         })
     }
 }

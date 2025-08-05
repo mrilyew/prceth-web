@@ -26,6 +26,7 @@ const rus = {
     "content.actions.show_json": "Показать JSON",
 
     "executables.args.all": "Все",
+    "executables.args.short": "Основное",
     "executables.acts": "Действия",
     "executables.extractors": "Экстракторы",
     "executables.representations": "Репрезентации",

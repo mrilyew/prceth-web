@@ -9,7 +9,12 @@ class SubArgument {
     }
 
     recieveValue() {
-        return this.node.nodes[0].value
+        const val = this.node.nodes[0].value
+        if (!val) {
+            return undefined
+        }
+
+        return val
     }
 
     focus() {
@@ -91,8 +96,13 @@ export const subparams = {
 
             keys.values.forEach(itm => {
                 let name = escapeHtml(itm)
-                if (this.data.docs && this.data.docs['values'] && this.data.docs.values[itm]) {
-                    name = this.data.docs.values[itm]
+
+                const keys = this.data.docs.values
+                const key  = keys[itm]
+                const key_name = key["name"]
+
+                if (this.data.docs && keys && key) {
+                    name = key_name
                 }
 
                 _u.append(`<label class="block_label"><input type="radio" name="${this.data.name}" value="${escapeHtml(itm)}">${name}</label>`)
@@ -174,10 +184,14 @@ export const subparams = {
             const addItem = (preset) => {
                 // messy code but ok
                 const orig_arg = this.data.original_arg
-                console.log(this.data)
-                const arg_type = orig_arg["type"] ?? "StringArgument"
+                const arg_type = orig_arg ? (orig_arg["type"] ?? "StringArgument") : "StringArgument"
                 const subparam_class = subparams[arg_type]
-                const subparam = new subparam_class(node.find('._items'), new ExecutableArgument(orig_arg))
+                const orig_arg_class = new ExecutableArgument(orig_arg ?? {})
+                if (preset) {
+                    orig_arg_class.data.default = preset
+                }
+
+                const subparam = new subparam_class(node.find('._items'), orig_arg_class)
 
                 subparam.render()
                 subparam.focus()
@@ -202,6 +216,7 @@ export const subparams = {
             }
 
             const _default = this.data.default ?? ['']
+            console.log(_default)
             _default.forEach(item => {
                 addItem(item)
             })
@@ -220,7 +235,12 @@ export const subparams = {
         recieveValue() {
             const vals = []
             this.subs.forEach(el => {
-                vals.push(el.recieveValue())
+                const val = el.recieveValue()
+                if (!val) {
+                    return
+                }
+
+                vals.push(val)
             })
 
             if (vals.length == 0) {

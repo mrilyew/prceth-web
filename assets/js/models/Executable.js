@@ -59,6 +59,10 @@ export class Executable extends Model {
         return this.data.docs ?? {}
     }
 
+    get confirmation() {
+        return this.data.confirmation ?? []
+    }
+
     get full_name() {
         const type = this.sub
         const category = this.category

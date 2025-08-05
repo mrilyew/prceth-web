@@ -79,7 +79,7 @@ export const app = new class {
                     }, () => {}],
                 })
             }
-            this.ws.onclose = _er
+            //this.ws.onclose = _er
             this.ws.onerror = _er
         }
 

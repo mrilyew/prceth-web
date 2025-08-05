@@ -9,7 +9,7 @@ class ExecutableArgument extends Model {
     }
 
     get type() {
-        return this.data.type
+        return this.data.type ?? "StringArgument"
     }
 
     get name() {
