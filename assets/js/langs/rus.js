@@ -52,7 +52,8 @@ const rus = {
     "config.env": "Переменные",
     "config.exception.editing_disabled": "Редактирование запрещено в конфиге",
     "config.save": "Сохранить",
-    "config.page.title": "Страница редактирования конфига",
+    "config.page.title": "Конфиг",
+    "config.page.env.title": "Env",
 
     "config.category.ui": "Интерфейс",
     "config.category.net": "Веб-функционал",

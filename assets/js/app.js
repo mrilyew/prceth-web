@@ -3,14 +3,34 @@ import router from "./router.js"
 import Container from "./ui/Container.js"
 import MessageBox from "./ui/MessageBox.js"
 import ApiError from "./exceptions/ApiError.js"
+import {proc_strtr, escapeHtml} from "./utils/utils.js"
 
 // class that represents page
 export const app = new class {
     logs = []
     navigation = new class {
-        setTab(tab) {
+        addTab(tab) {
+            u('#status-bar #_place').append(`<a data-id="${tab.id}" class="tab"></a>`)
+            this.setTabTitle(tab)
+        }
+        removeTab(tab) {
+            if (tab) {
+                u(`#status-bar .tab[data-id="${tab.id}"]`).remove()
+            }
+        }
+        setTabTitle(tab) {
+            document.title = tab.title + " - " + window.cfg['ui.name']
+
+            u(`#status-bar .tab[data-id="${tab.id}"]`).html(proc_strtr(escapeHtml(tab.title), 30))
+        }
+        focusTab(tab) {
             u('#status-bar a').removeClass('selected')
-            u(`#status-bar a[data-tab="${tab}"]`).addClass('selected')
+
+            if (tab) {
+                document.title = tab.title + " - " + window.cfg['ui.name']
+
+                u(`#status-bar a[data-id="${tab.id}"]`).addClass('selected')
+            }
         }
     }
     sidebar = new class {
@@ -120,7 +140,20 @@ export const app = new class {
 
     constructor() {
         this.main_template()
-        this.content_side = new Container('#app #page')
+        this.content_side = new Container('#app #page', true, {
+            "new_tab": (tab) => {
+                this.navigation.addTab(tab)
+            },
+            "close_tab": (tab) => {
+                this.navigation.removeTab(tab)
+            },
+            "title_change": (tab) => {
+                this.navigation.setTabTitle(tab)
+            },
+            "tab_focus": (tab) => {
+                this.navigation.focusTab(tab)
+            }
+        })
         this.another_side = new Container('#app #side')
 
         window.addEventListener("hashchange", async (event) => {
@@ -160,8 +193,8 @@ export const app = new class {
                 </div>
             </div>
             <nav id="status-bar" class="volume">
-                <a data-tab="add" class="tab" href="#add">${tr('nav.add')}</a>
-                <a data-tab="execute" class="tab hidden">${tr('nav.executable')}</a>
+                <div id="_place"></div>
+                <a id="_append">+</a>
             </nav>
             <div id="container">
                 <div id="page"></div>
@@ -175,6 +208,26 @@ export const app = new class {
 
         u('#app').on('click', '#down', (e) => {
             scrollTo(0, document.body.clientHeight)
+        })
+
+        u("#app #status-bar").on("click", "#_append", () => {
+            const _tab = this.content_side.openTab()
+            this.content_side.focusTab(_tab)
+
+            router.go_to("#index")
+        })
+
+        u("#app #status-bar").on("mouseup", ".tab", (e) => {
+            const target = e.target
+
+            if (e.button == 1) {
+                this.content_side.closeTabById(target.dataset.id)
+                this.content_side.focusTab(this.content_side.tabs[0])
+
+                return
+            }
+
+            this.content_side.focusTabById(target.dataset.id)
         })
 
         u('#app #sidebar_menu').on("mouseenter", (e) => {

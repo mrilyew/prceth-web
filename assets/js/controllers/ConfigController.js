@@ -20,7 +20,12 @@ class ConfigController extends BaseController {
         let locked = false
         const selected_tab = router.url.getParam('tab') ?? "same"
 
-        container.title(tr("config.page.title"))
+        if (selected_tab == "same") {
+            container.title(tr("config.page.title"))
+        } else {
+            container.title(tr("config.page.env.title"))
+        }
+
         container.set(`
             <div id="config_page">
                 <div class="horizontal_sub_tabs">

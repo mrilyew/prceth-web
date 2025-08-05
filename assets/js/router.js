@@ -36,7 +36,6 @@ export const router = new class {
 
         const controller = route.class
 
-        app.navigation.setTab(_hash)
         app.another_side.reset()
         app.up()
 

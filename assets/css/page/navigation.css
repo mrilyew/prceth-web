@@ -5,15 +5,35 @@
     color: var(--status-color);
     height: 42px;
     user-select: none;
-    display: flex;
     padding: 0px 41px;
 
     width: 100%;
     box-sizing: border-box;
     position: absolute;
     z-index: 0;
+    display: flex;
 
-    overflow-y: auto;
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+
+#status-bar #_append {
+    width: 45px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ab9ec8;
+    cursor: pointer;
+}
+
+#status-bar #_append:hover {
+    background: var(--head-lighter);
+}
+
+#status-bar #_place {
+    display: inline-flex;
+    flex-flow: nowrap;
+    flex-shrink: 0;
 }
 
 #status-bar::-webkit-scrollbar {
@@ -174,4 +194,12 @@ body.scrolled #sidebar #home, #sidebar #home:active {
 #sidebar_menu #sidebar_menu_buttons {
     display: flex;
     flex-direction: column;
+}
+
+.virtual_tab {
+    display: none;
+}
+
+.virtual_tab.seen {
+    display: block;
 }

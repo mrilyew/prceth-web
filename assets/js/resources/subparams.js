@@ -196,11 +196,11 @@ export const subparams = {
                 subparam.render()
                 subparam.focus()
 
-                subparam.node.on('keydown', (e) => {
+                /*subparam.node.on('keyup', (e) => {
                     if (e.key == 'Backspace' && this.subs.length > 1) {
                         removeItem(subparam)
                     }
-                })
+                })*/
 
                 this.subs.push(subparam)
             }
