@@ -93,8 +93,6 @@ class LoggerController extends BaseController {
         drawList(container.node.find("#logs_block"), app.logs, hiddeness, current_section)
 
         const interval = setInterval(() => {
-            console.log("Logs update")
-
             if (u("#logs_block").length == 0) {
                 clearInterval(interval)
 
@@ -102,7 +100,9 @@ class LoggerController extends BaseController {
             }
 
             if (app.logs.length > logs_length) {
-                drawList(container.node.find("#logs"), app.logs.splice(app.logs.length, logs_length), hiddeness)
+                console.log("Got new logs")
+
+                drawList(u("#logs_block"), app.logs.splice(logs_length, app.logs.length), hiddeness)
 
                 logs_length = app.logs.length
             }

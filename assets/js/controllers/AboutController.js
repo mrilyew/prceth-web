@@ -1,7 +1,9 @@
 import BaseController from "./BaseController.js"
 import MessageBox from "../ui/MessageBox.js"
+import FloatingWindow from "../ui/FloatingWindow.js"
 import tr from "../langs/locale.js"
 import api from "../api.js"
+import router from "../router.js"
 import routes from "../resources/routes.js"
 
 export class AboutController extends BaseController {
@@ -51,9 +53,15 @@ export class AboutController extends BaseController {
 
     async test(container) {
         container.set(`
-            <div id="test_page" style="padding: 10px 10px;">
-                <input type="button" id="run_msg" value="Show messagebox">
-                <input type="button" id="run_placeholder" value="Show loader">
+            <div id="test_page">
+                <div style="padding: 10px 10px;">
+                    <input type="button" id="run_msg" value="Show messagebox">
+                    <input type="button" id="run_placeholder" value="Show loader">
+                </div>
+                <div style="padding: 10px 10px;">
+                    <input type="text" id="float_text">
+                    <input type="button" id="run_float" value="run route as floating window">
+                </div>
             </div>
         `)
         container.title("debug")
@@ -67,6 +75,14 @@ export class AboutController extends BaseController {
         })
         u("#test_page").on("click", "#run_placeholder", (e) => {
             container.set(`<div class="placeholder"></div>`)
+        })
+        u("#test_page").on("click", "#run_float", async (e) => {
+            const route = u("#float_text").nodes[0].value
+            const found = router.__findRoute(route)
+
+            if (found) {
+                await FloatingWindow.open(found)
+            }
         })
     }
 

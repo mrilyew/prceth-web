@@ -114,7 +114,10 @@ class Container {
 
     title(title) {
         this.current_tab.set_title(title)
-        this.on_title_change(this.current_tab)
+
+        if (this.on_title_change) {
+            this.on_title_change(this.current_tab)
+        }
     }
 }
 

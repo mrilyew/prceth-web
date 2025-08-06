@@ -342,7 +342,16 @@ export class ExecutableController extends BaseController {
 
             app.another_side.set("")
 
-            const res = await api.executable(executable_type, `${category}.${name}`, out_args)
+            let res = null
+
+            try {
+                res = await api.executable(executable_type, `${category}.${name}`, out_args)
+            } catch(e) {
+                target.removeClass("unclickable")
+                console.error(e)
+
+                return
+            }
 
             if (is_confirmation) {
                 const __args = args.fromConfirmation(res.tab)

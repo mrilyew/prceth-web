@@ -40,3 +40,7 @@
     flex-direction: column;
     gap: 4px;
 }
+
+.floating_window #logs_settings, .floating_window .empty_block {
+    display: none;
+}
