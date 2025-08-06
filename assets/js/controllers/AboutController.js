@@ -8,9 +8,35 @@ export class AboutController extends BaseController {
     async main(container) {
         container.set(`
             <div id="about_page">
-                <b>Prcet:h v0.0</b>
+                <div id="name_frame">
+                    <b>Prcet:h v0.0</b>
+                </div>
+
+                <div id="links">
+                    <div class="scroll_element">
+                        <a href="#stat" class="scroll_element_title">
+                            <div class="name"><b>${tr("nav.stat")}</b></div>
+                        </a>
+                        <a href="#test" class="scroll_element_title">
+                            <div class="name"><b>Debug</b></div>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="routes">
+                    <b>${tr("index.routes")}</b>
+
+                    <div id="routes_list"></div>
+                </div>
             </div>
         `)
+
+        routes.forEach(el => {
+            container.node.find("#routes #routes_list").append(`
+                <a href="#${el.route}">${el.route}</a>
+            `)
+        })
+
         container.title(tr("main.common"))
     }
 
@@ -56,18 +82,6 @@ export class AboutController extends BaseController {
             </div>
         `)
         container.title(tr("statistics"))
-    }
-
-    async pages_list(container) {
-        container.node.html(`
-            <div id="all_pages" style="margin:10px;"></div>    
-        `)
-
-        routes.forEach(el => {
-            container.node.find("#all_pages").append(`
-                <p><a href="#${el.route}">${el.route}</a></p>
-            `)
-        })
     }
 }
 

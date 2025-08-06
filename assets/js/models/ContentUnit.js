@@ -11,22 +11,16 @@ export class ContentUnit extends Model {
         return ContentUnit.fromArray(dl)
     }
 
-    static async search(count = 100, offset = null) {
+    static async search(offset = null, count = 100) {
         const resp = await api.act({
             "i": "ContentUnits.Search",
             "count": count,
-            "timestamp_after": offset ?? "",
+            "offset": offset ?? "",
         })
         const items = resp.items
-        let last_offset = null
-
-        if (items[items.length - 1] != null) {
-            last_offset = items[items.length - 1].created
-        }
 
         return {
             "total_count": resp.total_count,
-            "last_offset": last_offset,
             "items": ContentUnit.fromArray(items)
         }
     }

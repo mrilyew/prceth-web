@@ -18,7 +18,7 @@
 }
 
 #status-bar #_append {
-    width: 45px;
+    min-width: 45px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -34,6 +34,15 @@
     display: inline-flex;
     flex-flow: nowrap;
     flex-shrink: 0;
+}
+
+#status-bar .tab #close_btn {
+    font-size: 14px;
+    margin-left: 7px;
+}
+
+#status-bar .tab #close_btn:hover {
+    color: var(--status-active);
 }
 
 #status-bar::-webkit-scrollbar {

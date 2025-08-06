@@ -1,9 +1,10 @@
 import {proc_strtr, escapeHtml} from "../utils/utils.js"
 import tr from "../langs/locale.js"
+import ViewModel from "./ViewModel.js"
 
-class ContentUnitSmallViewModel {
-    render(i) {
-        const data = i.data
+class ContentUnitSmallViewModel extends ViewModel {
+    render(args) {
+        const data = this.item.data
         const display_name = data.display_name
         const representation_name = data.representation
         const description = data.description
@@ -51,6 +52,9 @@ class ContentUnitSmallViewModel {
                 </div>
             </div>
         `)
+
+        this.container.append(_u)
+        this.node = _u
 
         return _u
     }

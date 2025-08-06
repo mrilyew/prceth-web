@@ -129,7 +129,7 @@ export const subparams = {
             `)
 
             if (this.data.default == true) {
-                _u.attr("checked", "")
+                _u.attr("checked", "true")
             }
 
             this.container.append(_u)

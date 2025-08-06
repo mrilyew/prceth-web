@@ -8,9 +8,34 @@ import {proc_strtr, escapeHtml} from "./utils/utils.js"
 // class that represents page
 export const app = new class {
     logs = []
+    menu = [
+        {
+            href: "#content",
+            name: tr('nav.content'),
+        },
+        {
+            href: "#add",
+            name: tr('nav.add'),
+        },
+        {
+            href: "#exec",
+            name: tr('nav.executables'),
+        },
+        {
+            href: "#logs",
+            name: tr('nav.logs'),
+        },
+        {
+            href: "#config",
+            name: tr('nav.config'),
+        }
+    ]
     navigation = new class {
         addTab(tab) {
-            u('#status-bar #_place').append(`<a data-id="${tab.id}" class="tab"></a>`)
+            u('#status-bar #_place').append(`<a data-id="${tab.id}" class="tab">
+                <span class="tab_name"></span>
+                <div id="close_btn">x</div>
+            </a>`)
             this.setTabTitle(tab)
         }
         removeTab(tab) {
@@ -21,7 +46,7 @@ export const app = new class {
         setTabTitle(tab) {
             document.title = tab.title + " - " + window.cfg['ui.name']
 
-            u(`#status-bar .tab[data-id="${tab.id}"]`).html(proc_strtr(escapeHtml(tab.title), 30))
+            u(`#status-bar .tab[data-id="${tab.id}"] .tab_name`).html(proc_strtr(escapeHtml(tab.title), 30))
         }
         focusTab(tab) {
             u('#status-bar a').removeClass('selected')
@@ -178,15 +203,7 @@ export const app = new class {
                     <a class="sidebar_button" id="home"></a>
 
                     <div id="sidebar_menu">
-                        <div class="sidebar_menu_buttons">
-                            <a href="#content">${tr('nav.content')}</a>
-                            <a href="#add">${tr('nav.add')}</a>
-                            <a href="#exec">${tr('nav.executables')}</a>
-                            <a href="#stat">${tr('nav.statistics')}</a>
-                            <a href="#logs">${tr('nav.logs')}</a>
-                            <a href="#config">${tr('nav.config')}</a>
-                            <a href="#all">${tr('nav.all_pages')}</a>
-                        </div>
+                        <div class="sidebar_menu_buttons"></div>
                     </div>
 
                     <a class="sidebar_button" id="down"></a>
@@ -201,6 +218,12 @@ export const app = new class {
                 <div id="side"></div>
             </div>
         `)
+
+        this.menu.forEach(item => {
+            u("#app .sidebar_menu_buttons").append(`
+                <a href="${item.href}">${item.name}</a>    
+            `)
+        })
 
         u('#app').on('click', '#home', (e) => {
             this.up()
@@ -218,16 +241,20 @@ export const app = new class {
         })
 
         u("#app #status-bar").on("mouseup", ".tab", (e) => {
-            const target = e.target
+            const target = u(e.target)
+            const tab = target.closest(".tab")
+            const tab_id = tab.nodes[0].dataset.id
 
-            if (e.button == 1) {
-                this.content_side.closeTabById(target.dataset.id)
-                this.content_side.focusTab(this.content_side.tabs[0])
+            if (target.attr("id") == "close_btn") {
+                this.content_side.closeTabById(tab_id)
+                if (this.content_side.current_tab_id == tab_id) {
+                    this.content_side.focusTab(this.content_side.tabs[0])
+                }
 
                 return
             }
 
-            this.content_side.focusTabById(target.dataset.id)
+            this.content_side.focusTabById(tab_id)
         })
 
         u('#app #sidebar_menu').on("mouseenter", (e) => {

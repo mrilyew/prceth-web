@@ -87,12 +87,12 @@ class Container {
     }
 
     closeTab(tab) {
-        if (this.on_close_tab) {
-            this.on_close_tab(tab)
-        }
-
         if (this.tabs.length < 2) {
             return
+        }
+
+        if (this.on_close_tab) {
+            this.on_close_tab(tab)
         }
 
         this._node.find(`.virtual_tab[data-id="${tab.id}"]`).remove()

@@ -8,58 +8,68 @@ import tr from "../langs/locale.js"
 
 export class ContentController extends BaseController {
     async main(container) {
-        let total_count, scrolled_count, last_offset = 0
+        const content_list = new class {
+            total_count = 0
+            offset = null
+            order = "desc"
+            items = []
 
-        const recieveItems = async (offset) => {
-            const response = await ContentUnit.search(100, offset)
+            async fetch(offset_id, per_page = 100) {
+                const new_items = await ContentUnit.search(offset_id, per_page)
+                let last_item = null
 
-            total_count = response.total_count
-            scrolled_count = (scrolled_count ?? 0) + response.items.length
+                this.items = this.items.concat(new_items.items)
+                this.total_count = new_items.total_count
+                // getting current id
 
-            const last_item = response.items[response.items.length - 1]
+                if (this.order == "desc") {
+                    last_item = new_items.items[0]
+                } else {
+                    last_item = new_items.items[new_items.items.length - 1]
+                }
 
-            if (last_item) {
-                last_offset = last_item.data.created
+                console.log(last_item, new_items)
+                this.offset = last_item.data.id
+
+                return new_items.items
             }
 
-            return response.items
-        }
+            insert(items, container) {
+                items.forEach(itm => {
+                    new ContentUnitSmallViewModel(container, itm).render()
+                })
 
-        const pushItems = (items, container_node) => {
-            items.forEach(itm => {
-                container_node.find(".container_items").append((new ContentUnitSmallViewModel).render(itm))
-            })
-
-            if (scrolled_count < total_count) {
-                container_node.find(".container_items").append(`
-                    <div class="show_more">Show next</div>    
-                `)
+                if (this.items.length < this.total_count) {
+                    container.append(`
+                        <div class="show_more">${tr("nav.show_next")}</div>    
+                    `)
+                }
             }
         }
 
-        const items = await recieveItems(last_offset)
-        const insert_node = u(`
+        const items = await content_list.fetch(content_list.offset)
+        container.set(`
             <div>
                 <div id="container_body">
                     <div class="container_items"></div>
                 </div>
             </div>
         `)
-
-        pushItems(items, insert_node)
-
-        container.set(insert_node.html())
         container.title(tr("content.title"))
 
-        u("#container_body").on("click", ".show_more", async (e) => {
+        content_list.insert(items, container.node.find(".container_items"))
+
+        console.log(container.node)
+        container.node.on("click", ".show_more", async (e) => {
             const container_node = u(e.target).closest("#container_body")
+
             u(e.target).addClass('unclickable')
 
-            const new_items = await recieveItems(last_offset)
+            const new_items = await content_list.fetch(content_list.offset)
 
             u(e.target).remove()
 
-            pushItems(new_items, container_node)
+            content_list.insert(new_items, container_node.find(".container_items"))
         })
     }
 

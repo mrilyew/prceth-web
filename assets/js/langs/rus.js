@@ -8,14 +8,17 @@ const rus = {
     "messagebox.no": "Нет",
 
     "nav.add": "Добавить",
-    "nav.statistics": "Статистика",
+    "nav.stat": "Статистика",
     "nav.test": "Отладка",
     "nav.logs": "Логи",
-    "nav.content": "Элементы",
+    "nav.content": "Поиск",
     "nav.executables": "Скрипты",
     "nav.executable": "Исполняемое",
     "nav.config": "Настройки",
     "nav.all_pages": "Все страницы",
+    "nav.show_next": "Показать далее",
+
+    "index.routes": "Роуты",
 
     "content.search_tip": "Поиск произойдёт по названию и описаниям внутри...",
     "content.title": "Содержимое",
