@@ -39,6 +39,8 @@ export class ExecutableController extends BaseController {
             draw(cont, list) {
                 const categories = this.getCategories(list)
 
+                cont.find(".placeholder").remove()
+
                 // creating categories tabs
                 categories.forEach(current_category => {
                     const current_category_name = tr_fallback("executables.category."+current_category, current_category)
@@ -93,7 +95,6 @@ export class ExecutableController extends BaseController {
             }
         }
 
-        const executables_list = await Executable.getList(current_tab)
         const _u = u(`
             <div>
                 <div class="upper_note"></div>
@@ -114,32 +115,39 @@ export class ExecutableController extends BaseController {
         container.set(_u.html())
         container.title(tr("nav.executables"))
 
-        ui_list.draw(container.node.find(".container_items"), executables_list)
         ui_upper.draw(upper_categories, context, container.node.find(".horizontal_mini_tabs"))
 
-        u('#container_search #search_bar').nodes[0].focus()
-        u('#container_search').on('input', '#search_bar', (e) => {
+        const executables_list = await Executable.getList(current_tab)
+
+        ui_list.draw(container.node.find(".container_items"), executables_list)
+
+        container.node.find('#container_search #search_bar').nodes[0].focus()
+        container.node.find('#container_search').on('input', '#search_bar', (e) => {
             const query = e.target.value
             const itms = executables_list.filter(el => {
                 let found = false
                 const blocks = [el.full_name, el.localized_name]
                 blocks.forEach(_el => {
+                    if (found) {
+                        return
+                    }
+
                     found = _el.toLowerCase().includes(query.toLowerCase())
                 })
 
                 return found
             })
 
-            u(".container_items").html('')
-            ui_list.draw(u(".container_items"), itms)
+            container.node.find(".container_items").html('')
+            ui_list.draw(container.node.find(".container_items"), itms)
         })
     }
 
     list_loader(container) {
         setTimeout(() => {
-            if (app.content_side.node.hasClass("currently_switching")) {
-                if (u('.container_items').length > 0) {
-                    u('.container_items').html(`<div class="placeholder"></div>`)
+            if (container.node.hasClass("currently_switching")) {
+                if (container.node.find('.container_items').length > 0) {
+                    container.node.find('.container_items').html(`<div class="placeholder"></div>`)
                 } else {
                     this.loader(container)
                 }

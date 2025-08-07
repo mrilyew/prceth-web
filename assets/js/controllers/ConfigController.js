@@ -92,7 +92,7 @@ class ConfigController extends BaseController {
             argument_models.push(_r_mdl)
         })
 
-        u("#config_page").on("click", "#save", async (e) => {
+        container.node.on("click", "#save", async (e) => {
             u(e.target).addClass("unclickable")
 
             const so_values = {}
@@ -144,11 +144,11 @@ class ConfigController extends BaseController {
             add_item(el[0], el[1])
         })
 
-        u("#config_page #env_add").on("click", "input", (e) => {
+        container.node.find("#env_add").on("click", "input", (e) => {
             add_item("", "")
         })
 
-        u("#config_page").on("keydown", "#env_table .env_element input", (e) => {
+        container.node.on("keydown", "#env_table .env_element input", (e) => {
             if (e.key == 'Backspace' && e.target.value.length == 0) {
                 const item_container = u(e.target).closest(".env_element")
                 if (item_container.nodes[0].previousSibling) {
@@ -158,7 +158,7 @@ class ConfigController extends BaseController {
             }
         })
 
-        u("#config_page").on("click", "#save", async (e) => {
+        container.node.on("click", "#save", async (e) => {
             u(e.target).addClass("unclickable")
 
             const so_values = {}

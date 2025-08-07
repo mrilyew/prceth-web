@@ -102,20 +102,20 @@ class LoggerController extends BaseController {
             if (app.logs.length > logs_length) {
                 console.log("Got new logs")
 
-                drawList(u("#logs_block"), app.logs.splice(logs_length, app.logs.length), hiddeness)
+                drawList(container.node.find("#logs_block"), app.logs.splice(logs_length, app.logs.length), hiddeness)
 
                 logs_length = app.logs.length
             }
         }, 1000)
 
-        u("#logs_block #logs_settings").on("change", "#show_ignored input", (e) => {
+        container.node.find("#logs_settings").on("change", "#show_ignored input", (e) => {
             hiddeness = e.target.checked
 
             hideList(container.node)
             drawList(container.node, app.logs, hiddeness)
         })
 
-        u("#logs_block #logs_settings").on("change", "#only_section select", (e) => {
+        container.node.find("#logs_settings").on("change", "#only_section select", (e) => {
             let val = e.target.value
 
             if (val == "!") {

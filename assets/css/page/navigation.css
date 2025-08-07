@@ -166,6 +166,11 @@
 }
 
 #sidebar #sidebar_menu .sidebar_menu_buttons a {
+    display: flex;
+    justify-content: space-between;
+}
+
+#sidebar #sidebar_menu .sidebar_menu_buttons a > div {
     padding: 6px 6px;
 }
 

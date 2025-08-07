@@ -4,10 +4,12 @@ import Container from "./ui/Container.js"
 import MessageBox from "./ui/MessageBox.js"
 import ApiError from "./exceptions/ApiError.js"
 import {proc_strtr, escapeHtml} from "./utils/utils.js"
+import FloatingWindow from "./ui/FloatingWindow.js"
 
 // class that represents page
 export const app = new class {
     logs = []
+    float_windows = []
     menu = [
         {
             href: "#content",
@@ -22,6 +24,8 @@ export const app = new class {
             name: tr('nav.executables'),
         },
         {
+            id: "logs_button",
+            undock: true,
             href: "#logs",
             name: tr('nav.logs'),
         },
@@ -220,9 +224,21 @@ export const app = new class {
         `)
 
         this.menu.forEach(item => {
-            u("#app .sidebar_menu_buttons").append(`
-                <a href="${item.href}">${item.name}</a>    
+            const _u = u(`
+                <a href="${item.href}">
+                    <div class="link_name">${item.name}</div>
+                </a>    
             `)
+
+            if (item.id) {
+                _u.attr("id", item.id)
+            }
+
+            if (item.undock) {
+                _u.append(`<div class="undock"><span>+</span></div>`)
+            }
+
+            u("#app .sidebar_menu_buttons").append(_u)
         })
 
         u('#app').on('click', '#home', (e) => {
@@ -269,6 +285,16 @@ export const app = new class {
             setTimeout(() => {
                 this.sidebar.hide()
             }, 100)
+        })
+
+        u("#app #logs_button .undock").on("click", async (e) => {
+            e.preventDefault()
+
+            if (this.float_windows.find(item => item.id == "logs")) {
+                return
+            }
+
+            await FloatingWindow.open(router.__findRoute("logs"), "logs")
         })
 
         u(document).on('scroll', (e) => {

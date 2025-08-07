@@ -8,8 +8,11 @@
     z-index: 3;
 
     border: 1px solid var(--head-2);
-    box-shadow: 0px 0px 3px 0px var(--border-color);
     background: var(--back);
+}
+
+.floating_window.moving {
+    box-shadow: 0px 0px 3px 0px var(--border-color);
 }
 
 .floating_window #head {

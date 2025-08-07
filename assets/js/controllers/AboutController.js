@@ -65,19 +65,18 @@ export class AboutController extends BaseController {
             </div>
         `)
         container.title("debug")
-
-        u("#test_page").on("click", "#run_msg", (e) => {
+        container.node.on("click", "#run_msg", (e) => {
             new MessageBox({
                 title: "1",
                 buttons: [tr('yes'), tr('no')],
                 callbacks: [() => {},() => {}]
             })
         })
-        u("#test_page").on("click", "#run_placeholder", (e) => {
+        container.node.on("click", "#run_placeholder", (e) => {
             container.set(`<div class="placeholder"></div>`)
         })
-        u("#test_page").on("click", "#run_float", async (e) => {
-            const route = u("#float_text").nodes[0].value
+        container.node.on("click", "#run_float", async (e) => {
+            const route = container.node.find("#float_text").nodes[0].value
             const found = router.__findRoute(route)
 
             if (found) {

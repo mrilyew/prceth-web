@@ -1,9 +1,10 @@
 import Container from "./Container.js"
+import app from "../app.js"
 import {proc_strtr, escapeHtml} from "../utils/utils.js"
 
 class FloatingWindow {
-    static async open(route) {
-        const win = new FloatingWindow()
+    static async open(route, id = "none") {
+        const win = new FloatingWindow(id)
         const controller = route.class
 
         if (route['loader']) {
@@ -17,9 +18,13 @@ class FloatingWindow {
         await controller[route.method](win.container)
 
         win.container.node.removeClass("currently_switching")
+
+        return win
     }
 
-    constructor() {
+    constructor(id) {
+        this.id = id
+
         const node = u(`
             <div class="floating_window">
                 <div id="head">
@@ -39,6 +44,8 @@ class FloatingWindow {
 
         node.find("#_close").on("click", (e) => {
             node.remove()
+
+            app.float_windows = app.float_windows.filter(item => item != this)
         })
 
         const position = {
@@ -49,29 +56,48 @@ class FloatingWindow {
         interact(node.find("#head").nodes[0]).draggable({
             listeners: {
                 start (event) {
-                    console.log(event.type, event.target)
+                    const target = u(event.target)
+
+                    target.closest(".floating_window").addClass("moving")
                 },
                 move (event) {
                     const target = u(event.target)
-                    const window = target.closest(".floating_window")
+                    const floating_window = target.closest(".floating_window")
+
+                    const _width = floating_window.nodes[0].getBoundingClientRect().width
+                    const _height = floating_window.nodes[0].getBoundingClientRect().height
 
                     position.x += event.dx
                     position.y += event.dy
 
-                    const move_x = Math.min(Math.max(0, position.x), window.innerWidth)
-                    const move_y = Math.max(0, position.y)
+                    let move_x = Math.min(position.x, window.innerWidth - _width - 17)
+                    let move_y = Math.min(position.y, window.innerHeight - _height)
 
-                    window.nodes[0].style.transform = `translate(${move_x}px, ${move_y}px)`
+                    move_x = Math.max(0, move_x)
+                    move_y = Math.max(0, move_y)
+
+                    position.x = Math.min(position.x, window.innerWidth)
+                    position.y = Math.min(position.y, window.innerHeight)
+
+                    floating_window.nodes[0].style.transform = `translate(${move_x}px, ${move_y}px)`
+                },
+                end (event) {
+                    const target = u(event.target)
+
+                    target.closest(".floating_window").removeClass("moving")
                 }
             }
         })
         interact(node.nodes[0]).resizable({
-            edges: { top: true, left: true, bottom: true, right: true },
+            edges: { bottom: true, right: true },
             listeners: {
                 move: function (event) {
+                    let _width = event.rect.width
+                    let _height = event.rect.height
+
                     Object.assign(event.target.style, {
-                        width: `${event.rect.width}px`,
-                        height: `${event.rect.height}px`,
+                        width: `${Math.min(_width, window.innerWidth)}px`,
+                        height: `${Math.min(_height, window.innerHeight)}px`,
                     })
                 }
             }
@@ -82,6 +108,8 @@ class FloatingWindow {
                 node.find("#head b").html(escapeHtml(tab.title))
             },
         })
+
+        app.float_windows.push(this)
     }
 }
 
