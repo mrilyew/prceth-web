@@ -21,12 +21,21 @@ const rus = {
     "index.routes": "Роуты",
 
     "content.search_tip": "Поиск произойдёт по названию и описаниям внутри...",
-    "content.title": "Содержимое",
+    "content.search": "Введите текст запроса...",
+    "content.search_noun": "Поиск",
+    "content.title": "Поиск по записям",
     "content.display_name": "Название",
     "content.description": "Описание",
     "content.units_title": "Единицы содержимого",
     "content.actions": "Дополнительно",
     "content.actions.show_json": "Показать JSON",
+
+    "content.search.representation": "По репрезентации",
+    "content.search.extractor": "По экстрактору",
+    "content.search.unlisted": "Показать скрытое",
+    "content.search.sort": "Сортировка",
+    "content.search.collections": "Только коллекции",
+    "content.search.json": "JSON",
 
     "executables.args.all": "Все",
     "executables.args.short": "Основное",

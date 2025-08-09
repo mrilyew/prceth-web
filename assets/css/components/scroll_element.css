@@ -1,0 +1,98 @@
+.scroll_element {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.scroll_element:last-of-type {
+    border-bottom: unset;
+}
+
+.scroll_element .scroll_element_title .name:hover, .scroll_element .scroll_element_title .toggle_block:hover {
+    background: var(--head-lighter-2);
+}
+
+.scroll_element .scroll_element_title {
+    display: grid;
+    grid-template-columns: 1fr 0fr;
+    justify-content: space-between;
+}
+
+.scroll_element .scroll_element_title .name {
+    padding: 6px 6px 6px 15px;
+}
+
+.scroll_element .scroll_element_title .representation_name {
+    display: inline-block;
+    background: var(--head-lighter);
+    padding: 0px 3px;
+}
+
+.scroll_element .toggle_icon {
+    width: 15px;
+    height: 15px;
+    background: url(/static/images/styles.png);
+    display: inline-block;
+    background-position: 0px -124px;
+}
+
+.scroll_element .toggle_block {
+    display: flex;
+    align-items: center;
+    padding: 0px 6px 0px 6px;
+}
+
+.scroll_element .data {
+    padding: 5px 15px 10px 15px;
+    display: none;
+}
+
+.scroll_element .data .data_table {
+    flex-direction: column;
+    gap: 10px;
+}
+
+.scroll_element .data .data_table_column {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+}
+
+.scroll_element .data .data_table_column b {
+    border-bottom: 1px solid var(--head-lighter);
+    padding: 0px 0px 4px 0px;
+}
+
+.scroll_element.shown .data {
+    display: block;
+}
+
+.scroll_element.shown .toggle_icon {
+    background-position: -16px -124px;
+}
+
+.scroll_element .data_args .data_arg {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.scroll_element .data_args .data_arg .list_block {
+    width: 5px;
+    height: 5px;
+    background: var(--head-2);
+}
+
+.scroll_element .data_args .data_arg b, .scroll_element .data_args .data_arg span {
+    margin-bottom: -1px;
+    display: inline-block;
+    font-size: 13px;
+}
+
+.scroll_element .data_args .data_arg b {
+    margin-top: -4px;
+}
+
+.scroll_element .data .data_description {
+    padding: 0px 0px 5px 0px;
+    font-size: 14px;
+}

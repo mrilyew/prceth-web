@@ -278,13 +278,13 @@ export const app = new class {
 
             setTimeout(() => {
                 this.sidebar.show()
-            }, 100)
+            }, 50)
         })
 
         u('#app #sidebar').on("mouseleave", (e) => {
             setTimeout(() => {
                 this.sidebar.hide()
-            }, 100)
+            }, 50)
         })
 
         u("#app #logs_button .undock").on("click", async (e) => {

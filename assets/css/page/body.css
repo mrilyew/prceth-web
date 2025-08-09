@@ -9,6 +9,7 @@ body {
     background: linear-gradient(298deg,rgb(243 241 243) 0%, rgba(255, 255, 255, 1) 50%, rgb(248 247 247) 100%);
     color: var(--text);
     line-height: 1.2;
+    font-size: 15px;
 }
 
 body, #app {

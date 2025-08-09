@@ -5,33 +5,39 @@ import ContentUnit from "../models/ContentUnit.js"
 import {create_json_viewer} from "../utils/utils.js"
 import ContentUnitSmallViewModel from "../view_models/ContentUnitSmallViewModel.js"
 import tr from "../langs/locale.js"
+import Executable from "../models/Executable.js"
+import ExecutableArgument from "../models/ExecutableArgument.js"
+import subparams from "../resources/subparams.js"
+import ShowMoreObserver from "../ui/observers/ShowMoreObserver.js"
 
 export class ContentController extends BaseController {
     async main(container) {
-        const content_list = new class {
+        const list = new class {
             total_count = 0
-            offset = null
-            order = "desc"
             items = []
+            params = {}
 
-            async fetch(offset_id, per_page = 100) {
-                const new_items = await ContentUnit.search(offset_id, per_page)
-                let last_item = null
+            async fetch(params = {}) {
+                this.params = params
+                const new_items = await ContentUnit.search(params)
 
-                this.items = this.items.concat(new_items.items)
+                this.items = new_items.items
                 this.total_count = new_items.total_count
-                // getting current id
-
-                if (this.order == "desc") {
-                    last_item = new_items.items[0]
-                } else {
-                    last_item = new_items.items[new_items.items.length - 1]
-                }
-
-                console.log(last_item, new_items)
-                this.offset = last_item.data.id
 
                 return new_items.items
+            }
+
+            async next(offset) {
+                const new_items = await ContentUnit.search(Object.assign(this.params, {"offset": offset}))
+
+                this.items = this.items.concat(new_items.items)
+
+                return new_items.items
+            }
+
+            clear(container) {
+                this.items = []
+                container.html("")
             }
 
             insert(items, container) {
@@ -39,37 +45,118 @@ export class ContentController extends BaseController {
                     new ContentUnitSmallViewModel(container, itm).render()
                 })
 
+                console.log(this.items.length, this.total_count)
                 if (this.items.length < this.total_count) {
-                    container.append(`
+                    const _u = u(`
                         <div class="show_more">${tr("nav.show_next")}</div>    
                     `)
+                    container.append(_u)
+                    ShowMoreObserver.observe(_u.nodes[0])
                 }
             }
         }
+        const input_block = new class {
+            _views = []
 
-        const items = await content_list.fetch(content_list.offset)
+            setParams(_container, args, tab = "cu") {
+                this._views = []
+
+                args.forEach(arg => {
+                    let _u = u(`
+                        <div class="container_param">
+                            <span>${arg.localized_name}</span>
+
+                            <div class="container_param_value argument_value"></div>
+                        </div>
+                    `)
+                    if (arg.name == "query") {
+                        _u = u(`
+                        <div id="search_bar" class="container_param single">
+                            <div class="container_param_value argument_value"></div>
+                        </div>`)
+                    }
+
+                    _container.find("#container_params #_items").append(_u)
+
+                    const argument_class_i = subparams[arg.type]
+                    const argument_class = new argument_class_i(_u.find(".container_param_value"), arg)
+                    argument_class.render({})
+
+                    this._views.push(argument_class)
+                })
+
+                _container.find("#search_bar input").attr("placeholder", tr("content.search"))
+            }
+
+            collect() {
+                const out = {}
+                this._views.forEach(view => {
+                    out[view.data.name] = view.recieveValue()
+                })
+
+                return out
+            }
+        }
+
+        container.title(tr("content.title"))
         container.set(`
             <div>
+                <div id="container_params">
+                    <div id="_items"></div>
+                    <div id="_search">
+                        <div>
+                            <select id="search_type">
+                                <option value="cu">ContentUnits</option>
+                                <option value="su">StorageUnits</option>
+                            </select>
+                        </div>
+
+                        <input type="button" value="${tr("content.search_noun")}">
+                    </div>
+                </div>
                 <div id="container_body">
                     <div class="container_items"></div>
                 </div>
             </div>
         `)
-        container.title(tr("content.title"))
 
-        content_list.insert(items, container.node.find(".container_items"))
+        const act = await Executable.getFromName("executables.acts.ContentUnits.Search")
+        input_block.setParams(container.node, act.args)
 
-        console.log(container.node)
+        const items = await list.fetch({})
+        list.insert(items, container.node.find(".container_items"))
+
+        container.node.find("#_search input").on("click", async (e) => {
+            const _new = input_block.collect()
+            list.clear(container.node.find(".container_items"))
+            const _new_items = await list.fetch(_new)
+
+            list.insert(_new_items, container.node.find(".container_items"))
+        })
+
         container.node.on("click", ".show_more", async (e) => {
-            const container_node = u(e.target).closest("#container_body")
+            const target = u(e.target)
+            let last_item = list.items[list.items.length - 1]
+            let offset = 0
 
-            u(e.target).addClass('unclickable')
+            const _ok = () => {
+                ShowMoreObserver.unobserve(target.nodes[0])
+                target.remove()
+            }
 
-            const new_items = await content_list.fetch(content_list.offset)
+            if (last_item) {
+                offset = last_item.data.id
+            } else {
+                _ok()
+            }
 
-            u(e.target).remove()
+            target.addClass('unclickable')
 
-            content_list.insert(new_items, container_node.find(".container_items"))
+            const new_items = await list.next(offset)
+
+            _ok()
+
+            list.insert(new_items, container.node.find(".container_items"))
         })
     }
 

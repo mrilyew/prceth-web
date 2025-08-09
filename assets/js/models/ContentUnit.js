@@ -11,12 +11,10 @@ export class ContentUnit extends Model {
         return ContentUnit.fromArray(dl)
     }
 
-    static async search(offset = null, count = 100) {
-        const resp = await api.act({
+    static async search(params) {
+        const resp = await api.act(Object.assign({
             "i": "ContentUnits.Search",
-            "count": count,
-            "offset": offset ?? "",
-        })
+        }, params))
         const items = resp.items
 
         return {
