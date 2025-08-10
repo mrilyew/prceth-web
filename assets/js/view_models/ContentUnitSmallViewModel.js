@@ -8,6 +8,7 @@ class ContentUnitSmallViewModel extends ViewModel {
         const data = this.item.data
         const display_name = data.display_name
         const representation_name = data.representation
+        const extractor_name = data.extractor
         const description = data.description
         const _u = u(`
             <div class="content_unit_item scroll_element">
@@ -45,13 +46,77 @@ class ContentUnitSmallViewModel extends ViewModel {
             `)
         }
 
+        if (representation_name && representation_name.length > 0) {
+            _u.find(".data_table").append(`
+                <div class="data_table_column">
+                    <b>${tr('content.representation_by')}</b>
+                    <span>${escapeHtml(representation_name)}</span>
+                </div>
+            `)
+        }
+
+        if (extractor_name && extractor_name.length > 0) {
+            _u.find(".data_table").append(`
+                <div class="data_table_column">
+                    <b>${tr('content.extractor_by')}</b>
+                    <span>${escapeHtml(extractor_name)}</span>
+                </div>
+            `)
+        }
+
+        if (extractor_name && extractor_name.length > 0) {
+            _u.find(".data_table").append(`
+                <div class="data_table_column">
+                    <b>${tr('content.extractor_by')}</b>
+                    <span>${escapeHtml(extractor_name)}</span>
+                </div>
+            `)
+        }
+
+        if (extractor_name && extractor_name.length > 0) {
+            _u.find(".data_table").append(`
+                <div class="data_table_column">
+                    <b>${tr('content.extractor_by')}</b>
+                    <span>${escapeHtml(extractor_name)}</span>
+                </div>
+            `)
+        }
+
+        // times
+        
+        const times_created = data.created
+        const times_declared_created = data.declared_created
+        let format_name = navigator.language
+        let is_equal_dates = Math.trunc(times_declared_created) != Math.trunc(times_created)
+
+        if (times_created) {
+            const _date = new Date(times_created * 1000)
+
+            _u.find(".data_table").append(`
+                <div class="data_table_column">
+                    <b>${tr("content.created_at")}</b>
+                    <span>${_date.toLocaleString(format_name)}</span>
+                </div>`)
+        }
+        
+        if (times_declared_created && is_equal_dates) {
+            const _date = new Date(times_declared_created * 1000)
+
+            _u.find(".data_table").append(`
+                <div class="data_table_column">
+                    <b>${tr("content.declared_created_at")}</b>
+                    <span>${_date.toLocaleString(format_name)}</span>
+                </div>
+            `)
+        }
+
         _u.find(".data_table").append(`
             <div class="data_table_column">
-                <b>${tr('content.actions')}</b>
+                <b>${tr('content.json_data')}</b>
                 <div>
-                    <input type="button" id="_show_json_button" value="${tr("content.actions.show_json")}">
-                    <input type="button" id="_show_outer_button" value="${tr("content.actions.show_outer")}">
-                    <input type="button" id="_show_source_button" value="${tr("content.actions.show_source")}">
+                    <input type="button" id="_show_json_button" value="${tr("content.json_data.show_json")}">
+                    <input type="button" id="_show_outer_button" value="${tr("content.json_data.show_outer")}">
+                    <input type="button" id="_show_source_button" value="${tr("content.json_data.show_source")}">
                 </div>
             </div>
         `)

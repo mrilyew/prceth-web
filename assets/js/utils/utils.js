@@ -91,4 +91,24 @@ export function array_splice(array, key)
     return resultArray;
 }
 
+export function simple_data(ms) {
+    const date = new Date(ms * 1000)
+
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1)
+    const day = date.getDate()
+    const hour = date.getHours()
+    const minutes = date.getMinutes()
+    const seconds = date.getSeconds()
+
+    return {
+        "year": year,
+        "month": month,
+        "day": day,
+        "hour": hour,
+        "minutes": minutes,
+        "seconds": seconds
+    }
+}
+
 export default new class {}
