@@ -44,7 +44,7 @@ export class Executable extends Model {
     }
 
     get description() {
-        return this.docs.definition ?? "no description"
+        return this.docs.definition
     }
 
     get name() {

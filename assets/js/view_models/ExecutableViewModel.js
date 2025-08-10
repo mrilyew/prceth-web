@@ -5,6 +5,11 @@ class ExecutableViewModel extends ViewModel {
     render(args) {
         const context = args['context']
         let link = `#execute?name=${escapeHtml(this.item.class_name)}`
+        let display_name = this.item.localized_name
+        if (args.original_name) {
+            display_name = this.item.full_name
+        }
+
         if (context) {
             link += `&context=${context}`
         }
@@ -13,14 +18,14 @@ class ExecutableViewModel extends ViewModel {
             <div class="scroll_element no_overflow">
                 <a href="${link}" class="scroll_element_title">
                     <div class="name">
-                        <b>${proc_strtr(escapeHtml(this.item.localized_name), 500)}</b>
+                        <b>${proc_strtr(escapeHtml(display_name), 500)}</b>
                     </div>
 
                     <div class="toggle_block"><div class="toggle_icon"></div></div>
                 </a>
                 <div class="data">
                     <div class="data_description">
-                        ${escapeHtml(this.item.description)}
+                        ${escapeHtml(this.item.description ?? "no description")}
                     </div>
                     <div class="data_args"></div>
                 </div>

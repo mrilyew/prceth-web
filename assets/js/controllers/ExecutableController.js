@@ -36,16 +36,19 @@ export class ExecutableController extends BaseController {
                 return categories
             }
 
-            draw(cont, list) {
+            draw(contain, list, original_names) {
                 const categories = this.getCategories(list)
 
-                cont.find(".placeholder").remove()
+                contain.find(".placeholder").remove()
 
                 // creating categories tabs
                 categories.forEach(current_category => {
-                    const current_category_name = tr_fallback("executables.category."+current_category, current_category)
+                    let current_category_name = tr_fallback("executables.category."+current_category, current_category)
+                    if (original_names) {
+                        current_category_name = current_category
+                    }
 
-                    cont.append(`
+                    contain.append(`
                         <div data-cat="${escapeHtml(current_category)}" class="category">
                             <div class="category_name">${escapeHtml(current_category_name)}</div>
                             <div class="category_items"></div>
@@ -55,7 +58,7 @@ export class ExecutableController extends BaseController {
                     list.forEach(el => {
                         const element_category = el.data.category
                         if (element_category == current_category) {
-                            new ExecutableViewModel(cont, el).render({"context": context})
+                            new ExecutableViewModel(contain, el).render({"context": context, "original_name": original_names})
                         }
                     })
                 })
@@ -101,6 +104,13 @@ export class ExecutableController extends BaseController {
                 <div class="horizontal_mini_tabs volume"></div>
                 <div id="container_search">
                     <input placeholder="${tr("content.search_tip")}" id="search_bar" type="search">
+
+                    <div style="margin-top: 18px;">
+                        <label>
+                            <input type="checkbox" id="_original_names">
+                            ${tr("executables.search.show_original")}
+                        </label>
+                    </div>
                 </div>
                 <div class="container_items"></div>
             </div>
@@ -140,6 +150,11 @@ export class ExecutableController extends BaseController {
 
             container.node.find(".container_items").html('')
             ui_list.draw(container.node.find(".container_items"), itms)
+        })
+        container.node.find("#_original_names").on("change", (e) => {
+            container.node.find(".container_items").html("")
+
+            ui_list.draw(container.node.find(".container_items"), executables_list, e.target.checked)
         })
     }
 
@@ -301,7 +316,7 @@ export class ExecutableController extends BaseController {
                             <b>${DOMPurify.sanitize(docs.name ?? full_name)}</b>
                         </div>
                         <div class="page-subhead">
-                            <span>${DOMPurify.sanitize(docs.definition ?? "")}</span>
+                            <span>${DOMPurify.sanitize(docs.definition)}</span>
                         </div>
                         <div id="addit"></div>
                         <div id="args"></div>

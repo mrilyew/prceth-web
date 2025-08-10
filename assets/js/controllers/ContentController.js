@@ -215,10 +215,9 @@ export class ContentController extends BaseController {
         })
     }
 
-    async page() {
+    async page(container) {
         const uuids = router.url.getParam('uuids')
         const ids = uuids.split(',')
-        const units = await ContentUnit.fromIds(ids)
 
         const _u = u(`
             <div>
@@ -228,17 +227,14 @@ export class ContentController extends BaseController {
             </div>
         `)
 
+        container.set(_u.html())
+        container.title(tr("content.items"))
+
+        const units = await ContentUnit.fromIds(ids)
+
         units.forEach(unit => {
-            _u.find(".container_items").append((new ContentUnitSmallViewModel).render(unit))
+            new ContentUnitSmallViewModel(container.node.find(".container_items"), unit).render()
         })
-
-        if (units.length == 1) {
-            u("#side").html("")
-            u("#side").append(jsonViewer)
-        }
-
-        app.content_side.set(_u.html())
-        app.content_side.title(tr("content_units"))
     }
 }
 

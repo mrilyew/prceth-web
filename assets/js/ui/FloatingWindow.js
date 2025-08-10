@@ -70,6 +70,7 @@ class FloatingWindow {
 
         u("body").append(node)
 
+        node.nodes[0].style.width = "500px"
         node.find("#_close").on("click", (e) => {
             this.close()
         })

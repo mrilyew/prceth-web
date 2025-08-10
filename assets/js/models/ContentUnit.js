@@ -2,6 +2,12 @@ import api from "../api.js"
 import Model from "../models/Model.js"
 
 export class ContentUnit extends Model {
+    constructor(data) {
+        super(data)
+
+        this.uuid = Number(data.uuid)
+    }
+
     static async fromIds(ids) {
         const dl = await api.act({
             "i": "ContentUnits.GetById",

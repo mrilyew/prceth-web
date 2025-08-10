@@ -21,6 +21,7 @@ const rus = {
     "index.routes": "Роуты",
 
     "content.search_tip": "Поиск произойдёт по названию и описаниям внутри...",
+    "content.items": "Записи",
     "content.search": "Введите текст запроса...",
     "content.search_noun": "Поиск",
     "content.search_reset": "Сброс",
@@ -31,6 +32,8 @@ const rus = {
     "content.units_title": "Единицы содержимого",
     "content.actions": "Дополнительно",
     "content.actions.show_json": "Показать JSON",
+    "content.actions.show_outer": "Показать внешнюю информацию",
+    "content.actions.show_source": "Показать источник",
 
     "content.search.representation": "По репрезентации",
     "content.search.extractor": "По экстрактору",
@@ -47,6 +50,7 @@ const rus = {
     "executables.execute": "Выполнить",
     "executables.env_value": "Значение будет взято из параметра $1 в env.json",
     "executables.sign": "Выбери скрипт для исполнения.",
+    "executables.search.show_original": "Оригинальные названия",
 
     "exceptions.error_title": "Произошла ошибка",
     "exceptions.error_api_description": "Возникла ошибка с типом <b>$1</b>. <br> Текст: $2",

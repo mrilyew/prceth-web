@@ -50,6 +50,8 @@ class ContentUnitSmallViewModel extends ViewModel {
                 <b>${tr('content.actions')}</b>
                 <div>
                     <input type="button" id="_show_json_button" value="${tr("content.actions.show_json")}">
+                    <input type="button" id="_show_outer_button" value="${tr("content.actions.show_outer")}">
+                    <input type="button" id="_show_source_button" value="${tr("content.actions.show_source")}">
                 </div>
             </div>
         `)
@@ -63,16 +65,28 @@ class ContentUnitSmallViewModel extends ViewModel {
             u(e.target).closest(".scroll_element").toggleClass("shown")
         })
 
-        _u.find("#_show_json_button").on("click", (e) => {
+        function showSomeButton(name, content) {
             const jsonViewer = create_json_viewer()
-            jsonViewer.data = data.content
+            jsonViewer.data = content
 
-            const float = FloatingWindow.openWDups(`json_${data.id}`)
-
-            float.move(e.clientX, e.clientY)
+            const float = FloatingWindow.openWDups(name)
 
             float.container.node.append(jsonViewer)
-            float.container.title(`JSON ${data.id}`)
+            float.container.title(name)
+
+            return float
+        }
+
+        _u.find("#_show_json_button").on("click", (e) => {
+            showSomeButton(`JSON ${data.id}`, data.content).move(e.clientX, e.clientY)
+        })
+
+        _u.find("#_show_outer_button").on("click", (e) => {
+            showSomeButton(`Outer ${data.id}`, data.outer).move(e.clientX, e.clientY)
+        })
+
+        _u.find("#_show_source_button").on("click", (e) => {
+            showSomeButton(`Source ${data.id}`, data.source).move(e.clientX, e.clientY)
         })
 
         return _u
