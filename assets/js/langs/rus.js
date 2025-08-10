@@ -23,6 +23,8 @@ const rus = {
     "content.search_tip": "Поиск произойдёт по названию и описаниям внутри...",
     "content.search": "Введите текст запроса...",
     "content.search_noun": "Поиск",
+    "content.search_reset": "Сброс",
+    "content.search.nothing_found": "Ничего не найдено",
     "content.title": "Поиск по записям",
     "content.display_name": "Название",
     "content.description": "Описание",

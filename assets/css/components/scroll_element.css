@@ -41,7 +41,7 @@
 }
 
 .scroll_element .data {
-    padding: 5px 15px 10px 15px;
+    padding: 10px 25px 20px 25px;
     display: none;
 }
 
@@ -53,13 +53,14 @@
 .scroll_element .data .data_table_column {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 8px;
     width: 100%;
 }
 
 .scroll_element .data .data_table_column b {
     border-bottom: 1px solid var(--head-lighter);
     padding: 0px 0px 4px 0px;
+    font-size: 15px;
 }
 
 .scroll_element.shown .data {

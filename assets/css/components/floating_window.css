@@ -34,3 +34,7 @@
 .floating_window .virtual_tab {
     height: 100%;
 }
+
+.floating_window #_close {
+    cursor: pointer;
+}

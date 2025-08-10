@@ -2,6 +2,11 @@
     background: var(--head-lighter-2);
     border-bottom: 1px solid var(--status-border);
     padding: 0px 0px 10px 0px;
+    min-height: 410px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 #container_params #_items {
@@ -65,4 +70,11 @@
     display: flex;
     justify-content: end;
     margin-top: 20px;
+}
+
+.storage_unit_item .size {
+    display: inline-block;
+    color: var(--status-active);
+    font-weight: bold;
+    padding: 0px 3px;
 }

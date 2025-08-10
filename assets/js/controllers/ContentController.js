@@ -2,24 +2,32 @@ import app from "../app.js"
 import router from "../router.js"
 import BaseController from "./BaseController.js"
 import ContentUnit from "../models/ContentUnit.js"
+import StorageUnit from "../models/StorageUnit.js"
 import {create_json_viewer} from "../utils/utils.js"
 import ContentUnitSmallViewModel from "../view_models/ContentUnitSmallViewModel.js"
 import tr from "../langs/locale.js"
 import Executable from "../models/Executable.js"
-import ExecutableArgument from "../models/ExecutableArgument.js"
 import subparams from "../resources/subparams.js"
 import ShowMoreObserver from "../ui/observers/ShowMoreObserver.js"
+import StorageUnitViewModel from "../view_models/StorageUnitViewModel.js"
 
 export class ContentController extends BaseController {
     async main(container) {
         const list = new class {
             total_count = 0
             items = []
+            type = "cu"
             params = {}
 
             async fetch(params = {}) {
                 this.params = params
-                const new_items = await ContentUnit.search(params)
+                let new_items = null
+
+                if (list.type == "cu") {
+                    new_items = await ContentUnit.search(params)
+                } else {
+                    new_items = await StorageUnit.search(params)
+                }
 
                 this.items = new_items.items
                 this.total_count = new_items.total_count
@@ -28,24 +36,45 @@ export class ContentController extends BaseController {
             }
 
             async next(offset) {
-                const new_items = await ContentUnit.search(Object.assign(this.params, {"offset": offset}))
+                let new_items = null
+
+                if (list.type == "cu") {
+                    new_items = await ContentUnit.search(Object.assign(this.params, {"offset": offset}))
+                } else {
+                    new_items = await StorageUnit.search(Object.assign(this.params, {"offset": offset}))
+                }
 
                 this.items = this.items.concat(new_items.items)
 
                 return new_items.items
             }
 
-            clear(container) {
-                this.items = []
+            clearBlock(container) {
                 container.html("")
             }
 
+            clear(container) {
+                this.items = []
+                this.clearBlock(container)
+            }
+
             insert(items, container) {
+                if (items.length < 1) {
+                    container.append(`
+                        <div class="empty_block">
+                            <span>${tr("content.search.nothing_found")}</span>
+                        </div>    
+                    `)
+                }
+
                 items.forEach(itm => {
-                    new ContentUnitSmallViewModel(container, itm).render()
+                    if (list.type == "cu") {
+                        new ContentUnitSmallViewModel(container, itm).render()
+                    } else {
+                        new StorageUnitViewModel(container, itm).render()
+                    }
                 })
 
-                console.log(this.items.length, this.total_count)
                 if (this.items.length < this.total_count) {
                     const _u = u(`
                         <div class="show_more">${tr("nav.show_next")}</div>    
@@ -111,7 +140,10 @@ export class ContentController extends BaseController {
                             </select>
                         </div>
 
-                        <input type="button" value="${tr("content.search_noun")}">
+                        <div>
+                            <input id="_reset" type="button" value="${tr("content.search_reset")}">
+                            <input id="_run" type="button" value="${tr("content.search_noun")}">
+                        </div>
                     </div>
                 </div>
                 <div id="container_body">
@@ -120,18 +152,41 @@ export class ContentController extends BaseController {
             </div>
         `)
 
-        const act = await Executable.getFromName("executables.acts.ContentUnits.Search")
-        input_block.setParams(container.node, act.args)
+        const cts = {
+            "cu": await Executable.getFromName("executables.acts.ContentUnits.Search"),
+            "su": await Executable.getFromName("executables.acts.StorageUnits.Search")
+        }
+
+        input_block.setParams(container.node, cts.cu.args)
 
         const items = await list.fetch({})
         list.insert(items, container.node.find(".container_items"))
 
-        container.node.find("#_search input").on("click", async (e) => {
+        container.node.find("#_search #_reset").on("click", async (e) => {
+            container.node.find("#container_params #_items").html("")
+            input_block.setParams(container.node, cts[list.type].args)
+        })
+
+        container.node.find("#_search #_run").on("click", async (e) => {
             const _new = input_block.collect()
-            list.clear(container.node.find(".container_items"))
+            list.items = []
+
             const _new_items = await list.fetch(_new)
 
+            list.clearBlock(container.node.find(".container_items"))
             list.insert(_new_items, container.node.find(".container_items"))
+        })
+
+        container.node.find("#search_type").on("change", async (e) => {
+            const val = e.target.value
+            if (!["cu", "su"].includes(val)) {
+                return
+            }
+
+            list.clear(container.node.find("#_items"))
+            list.type = val
+
+            input_block.setParams(container.node, cts[val].args)
         })
 
         container.node.on("click", ".show_more", async (e) => {
@@ -179,10 +234,6 @@ export class ContentController extends BaseController {
 
         if (units.length == 1) {
             u("#side").html("")
-
-            const jsonViewer = create_json_viewer()
-            jsonViewer.data = units[0].data.content
-
             u("#side").append(jsonViewer)
         }
 

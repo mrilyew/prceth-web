@@ -1,6 +1,7 @@
-import {proc_strtr, escapeHtml} from "../utils/utils.js"
+import {proc_strtr, escapeHtml, create_json_viewer} from "../utils/utils.js"
 import tr from "../langs/locale.js"
 import ViewModel from "./ViewModel.js"
+import FloatingWindow from "../ui/FloatingWindow.js"
 
 class ContentUnitSmallViewModel extends ViewModel {
     render(args) {
@@ -48,13 +49,31 @@ class ContentUnitSmallViewModel extends ViewModel {
             <div class="data_table_column">
                 <b>${tr('content.actions')}</b>
                 <div>
-                    <input type="button" value="${tr("content.actions.show_json")}">
+                    <input type="button" id="_show_json_button" value="${tr("content.actions.show_json")}">
                 </div>
             </div>
         `)
 
         this.container.append(_u)
         this.node = _u
+
+        _u.find(".toggle_block").on("click", (e) => {
+            e.preventDefault()
+
+            u(e.target).closest(".scroll_element").toggleClass("shown")
+        })
+
+        _u.find("#_show_json_button").on("click", (e) => {
+            const jsonViewer = create_json_viewer()
+            jsonViewer.data = data.content
+
+            const float = FloatingWindow.openWDups(`json_${data.id}`)
+
+            float.move(e.clientX, e.clientY)
+
+            float.container.node.append(jsonViewer)
+            float.container.title(`JSON ${data.id}`)
+        })
 
         return _u
     }

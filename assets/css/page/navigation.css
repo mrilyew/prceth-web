@@ -46,8 +46,8 @@
 }
 
 #status-bar::-webkit-scrollbar {
-    background: var(--status-border);
-    height: 2px;
+    background: var(--head);
+    height: 1px;
 }
 
 #status-bar::-webkit-scrollbar-thumb {

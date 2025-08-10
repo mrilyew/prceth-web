@@ -3,6 +3,11 @@ import app from "../app.js"
 import {proc_strtr, escapeHtml} from "../utils/utils.js"
 
 class FloatingWindow {
+    position = {
+        x: 0,
+        y: 0
+    }
+
     static async open(route, id = "none") {
         const win = new FloatingWindow(id)
         const controller = route.class
@@ -20,6 +25,29 @@ class FloatingWindow {
         win.container.node.removeClass("currently_switching")
 
         return win
+    }
+
+    move(x, y) {
+        this.position.x = x
+        this.position.y = y
+
+        console.log(this.position)
+        this.node.nodes[0].style.transform = `translate(${x}px, ${y}px)`
+    }
+
+    close() {
+        this.node.remove()
+
+        app.float_windows = app.float_windows.filter(item => item != this)
+    }
+
+    // open window with check of id dups
+    static openWDups(id) {
+        if (app.float_windows.find(item => item.id == id)) {
+            return
+        }
+
+        return new FloatingWindow(id)
     }
 
     constructor(id) {
@@ -43,15 +71,10 @@ class FloatingWindow {
         u("body").append(node)
 
         node.find("#_close").on("click", (e) => {
-            node.remove()
-
-            app.float_windows = app.float_windows.filter(item => item != this)
+            this.close()
         })
 
-        const position = {
-            x: 0,
-            y: 0
-        }
+        let position = this.position
 
         interact(node.find("#head").nodes[0]).draggable({
             listeners: {
@@ -109,6 +132,7 @@ class FloatingWindow {
             },
         })
 
+        this.node = node
         app.float_windows.push(this)
     }
 }
