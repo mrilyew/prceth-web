@@ -38,6 +38,10 @@ const rus = {
     "content.json_data.show_source": "Показать источник",
     "content.created_at": "Создано",
     "content.declared_created_at": "Заявленная дата создания",
+    "content.linked": "Привязки",
+    "content.actions": "Действия",
+    "content.editing.delete": "Удалить",
+    "content.editing.edit": "Редактировать",
 
     "content.search.representation": "По репрезентации",
     "content.search.extractor": "По экстрактору",

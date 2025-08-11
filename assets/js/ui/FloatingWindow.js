@@ -31,7 +31,6 @@ class FloatingWindow {
         this.position.x = x
         this.position.y = y
 
-        console.log(this.position)
         this.node.nodes[0].style.transform = `translate(${x}px, ${y}px)`
     }
 
@@ -116,12 +115,13 @@ class FloatingWindow {
             edges: { bottom: true, right: true },
             listeners: {
                 move: function (event) {
+                    const _width_offset = 100
                     let _width = event.rect.width
                     let _height = event.rect.height
 
                     Object.assign(event.target.style, {
-                        width: `${Math.min(_width, window.innerWidth)}px`,
-                        height: `${Math.min(_height, window.innerHeight)}px`,
+                        width: `${Math.min(_width, window.innerWidth - _width_offset)}px`,
+                        height: `${Math.min(_height, window.innerHeight - _width_offset)}px`,
                     })
                 }
             }

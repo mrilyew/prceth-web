@@ -3,7 +3,6 @@ import router from "../router.js"
 import BaseController from "./BaseController.js"
 import ContentUnit from "../models/ContentUnit.js"
 import StorageUnit from "../models/StorageUnit.js"
-import {create_json_viewer} from "../utils/utils.js"
 import ContentUnitSmallViewModel from "../view_models/ContentUnitSmallViewModel.js"
 import tr from "../langs/locale.js"
 import Executable from "../models/Executable.js"
@@ -13,6 +12,8 @@ import StorageUnitViewModel from "../view_models/StorageUnitViewModel.js"
 
 export class ContentController extends BaseController {
     async main(container) {
+        const url_params = Object.fromEntries(router.url.hashParams.entries())
+
         const list = new class {
             total_count = 0
             items = []
@@ -87,7 +88,7 @@ export class ContentController extends BaseController {
         const input_block = new class {
             _views = []
 
-            setParams(_container, args, tab = "cu") {
+            setParams(_container, args, tab = "cu", default_ref = {}) {
                 this._views = []
 
                 args.forEach(arg => {
@@ -109,7 +110,10 @@ export class ContentController extends BaseController {
 
                     const argument_class_i = subparams[arg.type]
                     const argument_class = new argument_class_i(_u.find(".container_param_value"), arg)
-                    argument_class.render({})
+
+                    argument_class.render({
+                        "default": default_ref[arg.name]
+                    })
 
                     this._views.push(argument_class)
                 })
@@ -157,9 +161,9 @@ export class ContentController extends BaseController {
             "su": await Executable.getFromName("executables.acts.StorageUnits.Search")
         }
 
-        input_block.setParams(container.node, cts.cu.args)
+        input_block.setParams(container.node, cts.cu.args, undefined, url_params)
 
-        const items = await list.fetch({})
+        const items = await list.fetch(url_params)
         list.insert(items, container.node.find(".container_items"))
 
         container.node.find("#_search #_reset").on("click", async (e) => {

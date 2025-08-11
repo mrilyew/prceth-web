@@ -12,7 +12,7 @@ export const app = new class {
     float_windows = []
     menu = [
         {
-            href: "#content",
+            href: "#search",
             name: tr('nav.content'),
         },
         {

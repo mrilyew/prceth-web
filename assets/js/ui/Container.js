@@ -104,7 +104,6 @@ class Container {
     }
 
     set(content = '') {
-        console.log(this.current_tab)
         this.current_tab.set(content)
     }
 

@@ -57,7 +57,7 @@
     width: 100%;
 }
 
-.scroll_element .data .data_table_column b {
+.scroll_element .data .data_table_column > b {
     border-bottom: 1px solid var(--head-lighter);
     padding: 0px 0px 4px 0px;
     font-size: 15px;

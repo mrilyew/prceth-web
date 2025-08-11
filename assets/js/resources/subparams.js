@@ -24,8 +24,9 @@ class SubArgument {
 
 export const subparams = {
     'StringArgument': class StringArgument extends SubArgument {
-        render(i) {
+        render(i = {}) {
             const data = this.data.data
+            const default_val = i.default ?? data.default
 
             let _u = u(`
                 <input class="_val" type="text">
@@ -37,11 +38,11 @@ export const subparams = {
                 `)
             }
 
-            if (this.data.default != null) {
+            if (default_val != null) {
                 if (data.is_long != true) {
-                    _u.attr("value", this.data.default)
+                    _u.attr("value", default_val)
                 } else {
-                    _u.html(escapeHtml(this.data.default))
+                    _u.html(escapeHtml(default_val))
                 }
             }
 
@@ -56,13 +57,15 @@ export const subparams = {
         }
     },
     'IntArgument': class IntArgument extends SubArgument {
-        render(i) {
+        render(i = {}) {
+            const data = this.data.data
+            const default_val = i.default ?? data.default
             const _u = u(`
                 <input class="_val" type="number">
             `)
 
-            if (this.data.default != null) {
-                _u.attr("value", this.data.default)
+            if (default_val != null) {
+                _u.attr("value", default_val)
             }
 
             this.container.append(_u)
@@ -72,7 +75,7 @@ export const subparams = {
         }
     },
     'FloatArgument': class FloatArgument extends SubArgument {
-        render(i) {
+        render(i = {}) {
             const _u = u(`
                 <input class="_val" step="0.01" type="number">
             `)
@@ -88,7 +91,7 @@ export const subparams = {
         }
     },
     'LimitedArgument': class LimitedArgument extends SubArgument {
-        render(i) {
+        render(i = {}) {
             const keys = this.data.data
             let _u = u(`
                 <div class="_val"></div>
@@ -123,7 +126,7 @@ export const subparams = {
         }
     },
     'BooleanArgument': class BooleanArgument extends SubArgument {
-        render(i) {
+        render(i = {}) {
             let _u = u(`
                 <input type="checkbox" class="_val">
             `)
@@ -143,7 +146,7 @@ export const subparams = {
         }
     },
     'JsonArgument': class JsonArgument extends SubArgument {
-        render(i) {
+        render(i = {}) {
             let _u = u(`
                 <textarea class="_val"></textarea>
             `)
@@ -161,7 +164,7 @@ export const subparams = {
     'CsvArgument': class CsvArgument extends SubArgument {
         subs = []
 
-        render(i) {
+        render(i = {}) {
             let _u = u(`
                 <div>
                     <div class="csv_argument">
@@ -216,7 +219,6 @@ export const subparams = {
             }
 
             const _default = this.data.default ?? ['']
-            console.log(_default)
             _default.forEach(item => {
                 addItem(item)
             })

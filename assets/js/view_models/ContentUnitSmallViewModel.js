@@ -121,6 +121,22 @@ class ContentUnitSmallViewModel extends ViewModel {
             </div>
         `)
 
+        _u.find(".data_table").append(`
+            <div class="data_table_column">
+                <a href="#search?link=${data.id}"><b>${tr('content.linked')}</b></a>
+            </div>
+        `)
+
+        _u.find(".data_table").append(`
+            <div class="data_table_column">
+                <b>${tr('content.actions')}</b>
+                <div>
+                    <input type="button" id="_item_delete" value="${tr("content.editing.delete")}">
+                    <input type="button" id="_item_edit" value="${tr("content.editing.edit")}">
+                </div>
+            </div>
+        `)
+
         this.container.append(_u)
         this.node = _u
 
