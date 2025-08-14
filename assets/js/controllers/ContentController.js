@@ -79,14 +79,11 @@ export class ContentController extends BaseController {
             }
 
             append_subparam(arg, node, ref) {
-                if (ref[arg.name]) {
-                    arg.data["current"] = ref[arg.name]
-                }
+                const argument_class = new arg.argument_class(node.find(".container_param_value"), arg)
 
-                const argument_class_i = subparams[arg.type]
-                const argument_class = new argument_class_i(node.find(".container_param_value"), arg)
-
-                argument_class.render({})
+                argument_class.render({
+                    "default": ref[arg.name]
+                })
 
                 this._views.push(argument_class)
             }
@@ -134,12 +131,9 @@ export class ContentController extends BaseController {
 
         input_block.set_params(variants["cu"].exec.args, url_params)
 
-        await list.fetch_with_insert(url_params)
-
-        container.node.find("#_search #_reset").on("click", async (e) => {
-            input_block.clear_params()
-            input_block.set_params(container.node, variants[variants.current].args)
-        })
+        try {
+            await list.fetch_with_insert(url_params)
+        } catch(e) {}
 
         container.node.find("#search_bar ._val").on("keyup", (e) => {
             if (e.key == "Enter") {
@@ -156,6 +150,11 @@ export class ContentController extends BaseController {
             list.container_clear()
             list.items_insert(NEW_ITEMS)
             list.container_insert(NEW_ITEMS)
+        })
+
+        container.node.find("#_search #_reset").on("click", async (e) => {
+            input_block.clear_params()
+            input_block.set_params(variants[variants.current].exec.args)
         })
 
         container.node.find("#search_type").on("change", async (e) => {

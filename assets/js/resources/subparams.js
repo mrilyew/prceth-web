@@ -179,6 +179,7 @@ export const subparams = {
 
             this.container.append(_u)
             this.node = _u
+            this._default = (i['default'] ?? this.data.default) ?? []
             this.events(_u)
 
             return _u
@@ -218,12 +219,11 @@ export const subparams = {
                 }
             }
 
-            let _default = this.data.default ?? []
-            if (!Array.isArray(_default)) {
-                _default = [_default]
+            if (!Array.isArray(this._default)) {
+                this._default = [this._default]
             }
 
-            _default.forEach(item => {
+            this._default.forEach(item => {
                 addItem(item)
             })
 

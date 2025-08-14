@@ -47,12 +47,16 @@ class DefaultList {
         this.container.html("")
     }
 
-    container_insert_empty_placeholder() {
+    container_insert_error(message) {
         this.container.append(`
             <div class="empty_block">
-                <span>${tr("content.search.nothing_found")}</span>
+                <span>${message}</span>
             </div>
         `)
+    }
+
+    container_insert_empty_placeholder() {
+        this.container_insert_error(tr("content.search.nothing_found"))
     }
 
     container_insert_continue_button() {
@@ -139,7 +143,14 @@ class DefaultList {
     }
 
     async fetch_with_insert(params) {
-        const resp = await this.fetch(params)
+        let resp = null
+
+        try {
+            resp = await this.fetch(params)
+        } catch(e) {
+            this.container_insert_error(e.message)
+            throw e
+        }
 
         this.items_insert(resp)
         this.container_insert(resp)

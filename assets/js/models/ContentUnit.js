@@ -12,7 +12,7 @@ export class ContentUnit extends Model {
         const dl = await api.act({
             "i": "ContentUnits.GetById",
             "ids": ids,
-        })
+        }, false)
 
         return ContentUnit.fromArray(dl)
     }
@@ -20,7 +20,7 @@ export class ContentUnit extends Model {
     static async search(params) {
         const resp = await api.act(Object.assign({
             "i": "ContentUnits.Search",
-        }, params))
+        }, params), false)
         const items = resp.items
 
         return {
