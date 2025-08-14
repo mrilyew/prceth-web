@@ -5,6 +5,7 @@ import ExecutableArgumentViewModel from "../view_models/ExecutableArgumentViewMo
 import ExecutableArgument from "../models/ExecutableArgument.js"
 import router from "../router.js"
 import Config from "../models/Config.js"
+import app from "../app.js"
 
 class ConfigController extends BaseController {
     error_page(container, message) {
@@ -17,14 +18,7 @@ class ConfigController extends BaseController {
     }
 
     async index(container) {
-        let locked = false
-        const selected_tab = router.url.getParam('tab') ?? "same"
-
-        if (selected_tab == "same") {
-            container.title(tr("config.page.title"))
-        } else {
-            container.title(tr("config.page.env.title"))
-        }
+        const selected_tab = router.url.getParam('tab')
 
         container.set(`
             <div id="config_page">
@@ -38,7 +32,7 @@ class ConfigController extends BaseController {
 
                 <div id="items"></div>
 
-                <div class="page-bottom">
+                <div class="page-bottom" data-tab="${selected_tab}">
                     <input class="wide_button" id="save" type="button" value="${tr("config.save")}">
                 </div>
             </div>
@@ -47,6 +41,7 @@ class ConfigController extends BaseController {
         container.node.find(`.horizontal_sub_tabs a[data-tab="${selected_tab}"]`).addClass("selected")
 
         switch (selected_tab) {
+            default:
             case "same":
                 await this.config_page(container)
 
@@ -59,6 +54,8 @@ class ConfigController extends BaseController {
     }
 
     async config_page(container) {
+        container.title(tr("config.page.title"))
+
         let config_items = null
         let argument_models = []
 
@@ -70,18 +67,23 @@ class ConfigController extends BaseController {
             return
         }
 
-        Config.categories_from_args(config_items).forEach(el => {
-            container.node.find("#config_page #items").append(`
-                <div class="category" data-category="${el}">
+        const append_category = (container, item) => {
+            container.find("#config_page #items").append(`
+                <div class="category" data-category="${item}">
                     <div class="category_name">
-                        <b>${escapeHtml(tr("config.category."+el))}</b>
+                        <b>${escapeHtml(tr("config.category." + item))}</b>
                     </div>
 
                     <div class="items"></div>
                 </div>
             `)
+        }
+
+        Config.categories_from_args(config_items).forEach(el => {
+            append_category(container.node, el)
         })
 
+        console.log(config_items)
         config_items.forEach(el => {
             const category = el.name.split(".")[0]
             const __category_container = container.node.find(`#config_page #items .category[data-category="${category}"] .items`)
@@ -93,25 +95,25 @@ class ConfigController extends BaseController {
         })
 
         container.node.on("click", "#save", async (e) => {
-            u(e.target).addClass("unclickable")
+            const target = u(e.target)
+
+            target.addClass("unclickable")
 
             const so_values = {}
-
             argument_models.forEach(arg => {
                 so_values[arg.item.name] = arg.collectValue()
             })
 
-            u(e.target).removeClass("unclickable")
+            target.removeClass("unclickable")
 
             await Config.update(so_values)
 
-            router.go_to("config")
+            app.up()
         })
     }
 
     async env_page(container) {
-        let env_items = null
-
+        container.title(tr("config.page.env.title"))
         container.node.find("#header").remove()
         container.node.find("#items").html(`
             <div id="env_table"></div>
@@ -120,6 +122,8 @@ class ConfigController extends BaseController {
                 <div style="width:105%"></div>
             </div>
         `)
+
+        let env_items = null
 
         try {
             env_items = await Config.env_list()
@@ -158,8 +162,10 @@ class ConfigController extends BaseController {
             }
         })
 
-        container.node.on("click", "#save", async (e) => {
-            u(e.target).addClass("unclickable")
+        container.node.on("click", `.page-bottom[data-tab="${selected_tab}"] #save`, async (e) => {
+            const target = u(e.target)
+
+            target.addClass("unclickable")
 
             const so_values = {}
 
@@ -174,7 +180,7 @@ class ConfigController extends BaseController {
                 so_values[env_name] = env_value
             })
 
-            u(e.target).removeClass("unclickable")
+            target.removeClass("unclickable")
 
             await Config.update_env(so_values)
 

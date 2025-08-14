@@ -7,129 +7,13 @@ import ContentUnitSmallViewModel from "../view_models/ContentUnitSmallViewModel.
 import tr from "../langs/locale.js"
 import Executable from "../models/Executable.js"
 import subparams from "../resources/subparams.js"
+import DefaultList from "../displays/DefaultList.js"
 import ShowMoreObserver from "../ui/observers/ShowMoreObserver.js"
 import StorageUnitViewModel from "../view_models/StorageUnitViewModel.js"
 
 export class ContentController extends BaseController {
     async main(container) {
         const url_params = Object.fromEntries(router.url.hashParams.entries())
-
-        const list = new class {
-            total_count = 0
-            items = []
-            type = "cu"
-            params = {}
-
-            async fetch(params = {}) {
-                this.params = params
-                let new_items = null
-
-                if (list.type == "cu") {
-                    new_items = await ContentUnit.search(params)
-                } else {
-                    new_items = await StorageUnit.search(params)
-                }
-
-                this.items = new_items.items
-                this.total_count = new_items.total_count
-
-                return new_items.items
-            }
-
-            async next(offset) {
-                let new_items = null
-
-                if (list.type == "cu") {
-                    new_items = await ContentUnit.search(Object.assign(this.params, {"offset": offset}))
-                } else {
-                    new_items = await StorageUnit.search(Object.assign(this.params, {"offset": offset}))
-                }
-
-                this.items = this.items.concat(new_items.items)
-
-                return new_items.items
-            }
-
-            clearBlock(container) {
-                container.html("")
-            }
-
-            clear(container) {
-                this.items = []
-                this.clearBlock(container)
-            }
-
-            insert(items, container) {
-                if (items.length < 1) {
-                    container.append(`
-                        <div class="empty_block">
-                            <span>${tr("content.search.nothing_found")}</span>
-                        </div>    
-                    `)
-                }
-
-                items.forEach(itm => {
-                    if (list.type == "cu") {
-                        new ContentUnitSmallViewModel(container, itm).render()
-                    } else {
-                        new StorageUnitViewModel(container, itm).render()
-                    }
-                })
-
-                if (this.items.length < this.total_count) {
-                    const _u = u(`
-                        <div class="show_more">${tr("nav.show_next")}</div>    
-                    `)
-                    container.append(_u)
-                    ShowMoreObserver.observe(_u.nodes[0])
-                }
-            }
-        }
-        const input_block = new class {
-            _views = []
-
-            setParams(_container, args, tab = "cu", default_ref = {}) {
-                this._views = []
-
-                args.forEach(arg => {
-                    let _u = u(`
-                        <div class="container_param">
-                            <span>${arg.localized_name}</span>
-
-                            <div class="container_param_value argument_value"></div>
-                        </div>
-                    `)
-                    if (arg.name == "query") {
-                        _u = u(`
-                        <div id="search_bar" class="container_param single">
-                            <div class="container_param_value argument_value"></div>
-                        </div>`)
-                    }
-
-                    _container.find("#container_params #_items").append(_u)
-
-                    const argument_class_i = subparams[arg.type]
-                    const argument_class = new argument_class_i(_u.find(".container_param_value"), arg)
-
-                    argument_class.render({
-                        "default": default_ref[arg.name]
-                    })
-
-                    this._views.push(argument_class)
-                })
-
-                _container.find("#search_bar input").attr("placeholder", tr("content.search"))
-            }
-
-            collect() {
-                const out = {}
-                this._views.forEach(view => {
-                    out[view.data.name] = view.recieveValue()
-                })
-
-                return out
-            }
-        }
 
         container.title(tr("content.title"))
         container.set(`
@@ -156,66 +40,141 @@ export class ContentController extends BaseController {
             </div>
         `)
 
-        const cts = {
-            "cu": await Executable.getFromName("executables.acts.ContentUnits.Search"),
-            "su": await Executable.getFromName("executables.acts.StorageUnits.Search")
+        const list = new DefaultList(container.node.find(".container_items"))
+        list.class = ContentUnit
+        list.view_model = ContentUnitSmallViewModel
+        list.continue_button_observers = [ShowMoreObserver]
+
+        const input_block = new class {
+            _views = []
+
+            constructor() {
+                this.container = container.node
+            }
+
+            append_arg(arg) {
+                let _u = u(`
+                    <div class="container_param">
+                        <span>${arg.localized_name}</span>
+
+                        <div class="container_param_value argument_value"></div>
+                    </div>
+                `)
+
+                switch(arg.name) {
+                    case "query":
+                        _u = u(`
+                            <div id="search_bar" class="container_param single">
+                                <div class="container_param_value argument_value"></div>
+                            </div>
+                        `)
+                        break
+                }
+
+                return _u
+            }
+
+            append_arg_to_container(node) {
+                this.container.find("#container_params #_items").append(node)
+            }
+
+            append_subparam(arg, node, ref) {
+                if (ref[arg.name]) {
+                    arg.data["current"] = ref[arg.name]
+                }
+
+                const argument_class_i = subparams[arg.type]
+                const argument_class = new argument_class_i(node.find(".container_param_value"), arg)
+
+                argument_class.render({})
+
+                this._views.push(argument_class)
+            }
+
+            clear_params() {
+                this.container.find("#container_params #_items").html("")
+
+                this._views = []
+            }
+
+            set_params(args, ref = {}) {
+                args.forEach(arg => {
+                    const _u = this.append_arg(arg)
+                    this.append_arg_to_container(_u)
+                    this.append_subparam(arg, _u, ref)
+                })
+
+                this.container.find("#search_bar input").attr("placeholder", tr("content.search"))
+            }
+
+            collect() {
+                const out = {}
+
+                this._views.forEach(view => {
+                    out[view.data.name] = view.recieveValue()
+                })
+
+                return out
+            }
         }
 
-        input_block.setParams(container.node, cts.cu.args, undefined, url_params)
+        const variants = {
+            "current": "cu",
+            "cu": {
+                "exec": await Executable.getFromName("executables.acts.ContentUnits.Search"),
+                "class": ContentUnit,
+                "view_model": ContentUnitSmallViewModel
+            },
+            "su": {
+                "exec": await Executable.getFromName("executables.acts.StorageUnits.Search"),
+                "class": StorageUnit,
+                "view_model": StorageUnitViewModel
+            }
+        }
 
-        const items = await list.fetch(url_params)
-        list.insert(items, container.node.find(".container_items"))
+        input_block.set_params(variants["cu"].exec.args, url_params)
+
+        await list.fetch_with_insert(url_params)
 
         container.node.find("#_search #_reset").on("click", async (e) => {
-            container.node.find("#container_params #_items").html("")
-            input_block.setParams(container.node, cts[list.type].args)
+            input_block.clear_params()
+            input_block.set_params(container.node, variants[variants.current].args)
+        })
+
+        container.node.find("#search_bar ._val").on("keyup", (e) => {
+            if (e.key == "Enter") {
+                container.node.find("#_search #_run").nodes[0].click()
+            }
         })
 
         container.node.find("#_search #_run").on("click", async (e) => {
-            const _new = input_block.collect()
-            list.items = []
+            const NEW_ARGUMENTS = input_block.collect()
+            list.items_clear()
 
-            const _new_items = await list.fetch(_new)
+            const NEW_ITEMS = await list.fetch(NEW_ARGUMENTS)
 
-            list.clearBlock(container.node.find(".container_items"))
-            list.insert(_new_items, container.node.find(".container_items"))
+            list.container_clear()
+            list.items_insert(NEW_ITEMS)
+            list.container_insert(NEW_ITEMS)
         })
 
         container.node.find("#search_type").on("change", async (e) => {
-            const val = e.target.value
-            if (!["cu", "su"].includes(val)) {
+            const SEARCH_VALUE = e.target.value
+            const SEARCH_DICT = variants[SEARCH_VALUE]
+            if (!SEARCH_DICT) {
                 return
             }
 
-            list.clear(container.node.find("#_items"))
-            list.type = val
+            list.container_clear()
+            list.view_models_clear()
+            list.items_clear()
 
-            input_block.setParams(container.node, cts[val].args)
-        })
+            list.class = SEARCH_DICT["class"]
+            list.view_model = SEARCH_DICT["view_model"]
+            variants.current = SEARCH_VALUE
 
-        container.node.on("click", ".show_more", async (e) => {
-            const target = u(e.target)
-            let last_item = list.items[list.items.length - 1]
-            let offset = 0
-
-            const _ok = () => {
-                ShowMoreObserver.unobserve(target.nodes[0])
-                target.remove()
-            }
-
-            if (last_item) {
-                offset = last_item.data.id
-            } else {
-                _ok()
-            }
-
-            target.addClass('unclickable')
-
-            const new_items = await list.next(offset)
-
-            _ok()
-
-            list.insert(new_items, container.node.find(".container_items"))
+            input_block.clear_params()
+            input_block.set_params(SEARCH_DICT["exec"].args)
         })
     }
 

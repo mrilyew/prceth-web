@@ -26,7 +26,7 @@ export const subparams = {
     'StringArgument': class StringArgument extends SubArgument {
         render(i = {}) {
             const data = this.data.data
-            const default_val = i.default ?? data.default
+            const default_val = i.default ?? this.data.default
 
             let _u = u(`
                 <input class="_val" type="text">
@@ -59,7 +59,7 @@ export const subparams = {
     'IntArgument': class IntArgument extends SubArgument {
         render(i = {}) {
             const data = this.data.data
-            const default_val = i.default ?? data.default
+            const default_val = i.default ?? this.data.default
             const _u = u(`
                 <input class="_val" type="number">
             `)
@@ -218,7 +218,11 @@ export const subparams = {
                 }
             }
 
-            const _default = this.data.default ?? ['']
+            let _default = this.data.default ?? []
+            if (!Array.isArray(_default)) {
+                _default = [_default]
+            }
+
             _default.forEach(item => {
                 addItem(item)
             })
@@ -246,7 +250,7 @@ export const subparams = {
             })
 
             if (vals.length == 0) {
-                return undefined
+                return []
             }
 
             return JSON.stringify(vals)
