@@ -179,7 +179,6 @@ export class ExecutableController extends BaseController {
         const category = executable.category
         const name = executable.name
         const executable_type = type.slice(0, type.length - 1)
-        const docs = executable.data['docs']
         let models = []
         let extra_ext = null
         let full_name = `${type}.${category}.${name}`
@@ -241,8 +240,8 @@ export class ExecutableController extends BaseController {
             current_tab = null
 
             constructor() {
-                this.items = executable.data.variants ?? []
-                // fffffuuuu
+                this.items = executable.variants ?? []
+
                 const names = []
                 Object.values(args.items).forEach(itm => {
                     if (executable.confirmation.includes(itm.name)) {
@@ -313,10 +312,10 @@ export class ExecutableController extends BaseController {
                 <div class="between">
                     <div>
                         <div class="page-head volume">
-                            <b>${DOMPurify.sanitize(docs.name ?? full_name)}</b>
+                            <b>${DOMPurify.sanitize(executable.name ?? full_name)}</b>
                         </div>
                         <div class="page-subhead">
-                            <span>${DOMPurify.sanitize(docs.definition)}</span>
+                            <span>${DOMPurify.sanitize(executable.description)}</span>
                         </div>
                         <div id="addit"></div>
                         <div id="args"></div>

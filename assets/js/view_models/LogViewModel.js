@@ -1,8 +1,8 @@
-import {proc_strtr, escapeHtml, simple_data} from "../utils/utils.js"
+import {proc_strtr, escapeHtml, simple_date} from "../utils/utils.js"
 
 class LogViewModel {
     render(container, i, args = {}) {
-        const date = simple_data(i.time)
+        const date = simple_date(i.time)
 
         const template = u(`
             <div class="log">

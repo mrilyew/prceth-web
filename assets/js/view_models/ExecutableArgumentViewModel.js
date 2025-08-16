@@ -6,11 +6,10 @@ class FocusError extends Error {}
 
 class ExecutableArgumentViewModel extends ViewModel {
     render(i) {
-        const data = this.item.data
-        const argument_class = subparams[data.type]
+        const argument_class = subparams[this.item.type]
 
         const _f = u(`
-            <div class="argument_listitem" data-name="${escapeHtml(data.name)}">
+            <div class="argument_listitem" data-name="${escapeHtml(this.item.name)}">
                 <div class="argument_about">
                     <div class="name">
                         <div class="name_place"></div>
@@ -21,20 +20,19 @@ class ExecutableArgumentViewModel extends ViewModel {
             </div>
         `)
 
-        const has_docs = data.docs != null
-        const has_described_name = has_docs && data.docs.name != null
+        const has_docs = this.item.docs != null
         const has_class = argument_class != null
         const is_required = this.item.is_required
 
-        if (has_described_name) {
-            _f.find(".argument_about .name_place").append(`<span class="common_name"><b>${escapeHtml(data.docs.name)}</b></span><b class="redded">&nbsp;${proc_strtr(escapeHtml(data.name), 500)}</b>`)
+        if (this.item.localized_name) {
+            _f.find(".argument_about .name_place").append(`<span class="common_name"><b>${escapeHtml(this.item.localized_name)}</b></span><b class="redded">&nbsp;${proc_strtr(escapeHtml(this.item.name), 500)}</b>`)
         } else {
-            _f.find(".argument_about .name_place").append(`<span class="common_name"><b>${proc_strtr(escapeHtml(data.name), 500)}</b></span>`)
+            _f.find(".argument_about .name_place").append(`<span class="common_name"><b>${proc_strtr(escapeHtml(this.item.name), 500)}</b></span>`)
         }
 
         if (has_docs) {
             _f.find('.argument_about').append(`
-                <p class="desc">${data.docs.definition ?? ''}</p>
+                <p class="desc">${this.item.localized_description ?? ''}</p>
             `)
         }
 
@@ -42,7 +40,7 @@ class ExecutableArgumentViewModel extends ViewModel {
             this.argument_class = new argument_class(_f.find(".argument_value"), this.item)
             this.argument_class.render({})
 
-            _f.find(".argument_value").attr("data-type", data.type)
+            _f.find(".argument_value").attr("data-type", this.item.type)
         }
 
         if (is_required && i.required == true) {

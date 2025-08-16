@@ -1,4 +1,8 @@
 export function escapeHtml(str) {
+    if (!str) {
+        return ""
+    }
+
     return str
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -91,7 +95,7 @@ export function array_splice(array, key)
     return resultArray;
 }
 
-export function simple_data(ms) {
+export function simple_date(ms) {
     const date = new Date(ms * 1000)
 
     const year = date.getFullYear()
@@ -109,6 +113,19 @@ export function simple_data(ms) {
         "minutes": minutes,
         "seconds": seconds
     }
+}
+
+export function resolve_locale(dict) {
+    const lang = window.cfg["ui.lang"]
+    if (!dict || !dict.hasOwnProperty(lang)) {
+        if (dict && dict.hasOwnProperty("eng")) {
+            return dict["eng"]
+        }
+
+        return null
+    }
+
+    return dict[lang]
 }
 
 export default new class {}

@@ -1,4 +1,4 @@
-import {proc_strtr, escapeHtml} from "../utils/utils.js"
+import {resolve_locale, escapeHtml} from "../utils/utils.js"
 import tr from "../langs/locale.js"
 import ExecutableArgument from "../models/ExecutableArgument.js"
 
@@ -92,23 +92,24 @@ export const subparams = {
     },
     'LimitedArgument': class LimitedArgument extends SubArgument {
         render(i = {}) {
-            const keys = this.data.data
             let _u = u(`
                 <div class="_val"></div>
             `)
 
-            keys.values.forEach(itm => {
-                let name = escapeHtml(itm)
-
+            this.data.values.forEach(name_of_the_key => {
+                let name = escapeHtml(name_of_the_key)
                 const keys = this.data.docs.values
-                const key  = keys[itm]
-                const key_name = key["name"]
+                if (this.data.docs && keys) {
+                    const key = keys[name_of_the_key]
 
-                if (this.data.docs && keys && key) {
-                    name = key_name
+                    if (key) {
+                        const key_name = key.name
+
+                        name = resolve_locale(key_name)
+                    }
                 }
 
-                _u.append(`<label class="block_label"><input type="radio" name="${this.data.name}" value="${escapeHtml(itm)}">${name}</label>`)
+                _u.append(`<label class="block_label"><input type="radio" name="${this.data.name}" value="${escapeHtml(name_of_the_key)}">${name}</label>`)
             })
 
             if (this.data.default != null) {

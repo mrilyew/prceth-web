@@ -1,5 +1,6 @@
 import Model from "../models/Model.js"
 import subparams from "../resources/subparams.js"
+import {resolve_locale} from "../utils/utils.js"
 
 class ExecutableArgument extends Model {
     constructor(data) {
@@ -17,7 +18,15 @@ class ExecutableArgument extends Model {
     }
 
     get localized_name() {
-        return this.data["docs"]["name"] ?? this.name
+        if (!this.data.docs) {
+            return null
+        }
+
+        return resolve_locale(this.data["docs"]["name"]) ?? this.name
+    }
+
+    get localized_description() {
+        return resolve_locale(this.data.docs.definition)
     }
 
     get default() {
@@ -30,6 +39,10 @@ class ExecutableArgument extends Model {
 
     get docs() {
         return this.data.docs
+    }
+
+    get values() {
+        return this.data.values
     }
 
     get original_arg() {

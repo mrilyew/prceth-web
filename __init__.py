@@ -131,7 +131,7 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
                         "payload": response
                     }))
                 except Exception as _e:
-                    print(traceback.format_exc())
+                    logger.logException(_e, "Executables")
 
                     self.write_message(dump_json({
                         "type": message_type,

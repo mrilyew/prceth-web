@@ -1,6 +1,8 @@
 import api from "../api.js"
 import Model from "../models/Model.js"
 import ExecutableArgument from "./ExecutableArgument.js"
+import ExecutableVariant from "./ExecutableVariant.js"
+import {resolve_locale} from "../utils/utils.js"
 
 export class Executable extends Model {
     static async getList(class_type) {
@@ -44,7 +46,7 @@ export class Executable extends Model {
     }
 
     get description() {
-        return this.docs.definition
+        return resolve_locale(this.docs.definition)
     }
 
     get name() {
@@ -63,6 +65,19 @@ export class Executable extends Model {
         return this.data.confirmation ?? []
     }
 
+    get variants() {
+        const _vals = []
+        if (!this.data.variants) {
+            return null
+        }
+
+        this.data.variants.forEach(element => {
+            _vals.push(new ExecutableVariant(element))
+        })
+
+        return _vals
+    }
+
     get full_name() {
         const type = this.sub
         const category = this.category
@@ -72,7 +87,9 @@ export class Executable extends Model {
     }
 
     get localized_name() {
-        return this.docs.name ?? this.full_name
+        const local_dict = this.docs.name
+
+        return resolve_locale(local_dict) ?? this.full_name
     }
 
     get category_name() {
