@@ -53,6 +53,7 @@ class ActHandler(tornado.web.RequestHandler):
         act_instnace = ActsRepository().getByName(plugin_name=act_name)
 
         assert act_instnace != None, "act not found"
+        assert act_instnace.canBeUsedAt("web"), "act cannot be used at web"
 
         act = act_instnace()
         act_response = await act.safeExecute(args)
@@ -124,6 +125,8 @@ class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
                 response = None
 
                 try:
+                    assert act.canBeUsedAt("web"), "act cannot be used at web"
+
                     response = await act.safeExecute(args)
                     self.write_message(dump_json({
                         "type": message_type,

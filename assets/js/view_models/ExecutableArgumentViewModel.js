@@ -43,7 +43,7 @@ class ExecutableArgumentViewModel extends ViewModel {
             _f.find(".argument_value").attr("data-type", this.item.type)
         }
 
-        if (is_required && i.required == true) {
+        if (is_required || i.required == true) {
             _f.attr("data-required", "1")
             _f.find(".argument_about .common_name").append(`<span>*</span>`)
         }
