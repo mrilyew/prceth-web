@@ -2,6 +2,12 @@ import api from "../api.js"
 import Model from "../models/Model.js"
 
 export class StorageUnit extends Model {
+    constructor(data) {
+        super(data)
+
+        this.uuid = Number(data.uuid)
+    }
+
     static async search(params) {
         const resp = await api.act(Object.assign({
             "i": "StorageUnits.Search",

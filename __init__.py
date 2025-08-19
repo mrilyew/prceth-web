@@ -1,162 +1,147 @@
-from repositories.ActsRepository import ActsRepository
-from utils.MainUtils import dump_json, parse_json
 from resources.Consts import consts
-from app.App import app, config, logger, storage
+from app.App import config, logger
 from pathlib import Path
-import traceback
-import tornado
-import tornado.websocket
+from executables.acts.Executables.RunAct import RunAct
+from db.Models.Content.StorageUnit import StorageUnit
+from utils.MainUtils import dump_json, parse_json
+import aiohttp, aiohttp_jinja2, jinja2
 import os
 
-consts['context'] = 'web'
+consts["context"] = "web"
+TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "assets")
 
-settings = {
-    "debug": config.get("web.debug") == True,
-    "static_path": os.path.join(os.path.dirname(__file__), "assets"),
-    "static_hash_cache": False,
-    "template_path": "",
-    "websocket_ping_interval": 10,
-    "websocket_ping_timeout": 10,
-}
+def check_node_modules():
+    cwd = Path.cwd()
+    cwd_web = Path.joinpath(cwd, "app").joinpath("Views").joinpath("Web")
+    dir_js_modules = cwd_web.joinpath("assets").joinpath("js")
+    dir_node_modules = dir_js_modules.joinpath("node_modules")
 
-# Checking if npm modules installed
+    if dir_node_modules.is_dir() == False:
+        os.chdir(str(dir_js_modules))
+        os.system("npm install")
+        os.chdir(str(cwd))
 
-cwd = Path.cwd()
-cwd_web = Path.joinpath(cwd, "app").joinpath("Views").joinpath("Web")
-dir_js_modules = cwd_web.joinpath("assets").joinpath("js")
-dir_node_modules = dir_js_modules.joinpath("node_modules")
+check_node_modules()
 
-if dir_node_modules.is_dir() == False:
-    os.chdir(str(dir_js_modules))
-    os.system("npm install")
-    os.chdir(str(cwd))
+app = aiohttp.web.Application()
+aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
 
-# so the handlers
+@aiohttp_jinja2.template('index.html')
+async def index(request):
+    return {'config': config}
 
-# "SPA"
-class MainPageHandler(tornado.web.RequestHandler):
-    def get(self):
-        context = {
-            "config": config
-        }
+async def _act(args):
+    act = RunAct()
+    output = await act.safeExecute(args)
 
-        self.render("index.html", **context)
+    return output
 
-# Act
-class ActHandler(tornado.web.RequestHandler):
-    async def post(self):
-        args = { a: self.get_argument(a) for a in self.request.arguments }
+async def act(request):
+    args = await request.post()
+    output = _act(args)
 
-        assert "i" in args, "pass the name of act as --i"
+    return aiohttp.web.json_response(text=dump_json({
+        "payload": output
+    }))
 
-        act_name  = args.get("i")
-        act_instnace = ActsRepository().getByName(plugin_name=act_name)
+async def static(request):
+    path = request.match_info.get('path', '')
+    static_file = os.path.join(STATIC_DIR, path)
 
-        assert act_instnace != None, "act not found"
-        assert act_instnace.canBeUsedAt("web"), "act cannot be used at web"
+    if os.path.exists(static_file) and os.path.isfile(static_file):
+        return aiohttp.web.FileResponse(static_file)
 
-        act = act_instnace()
-        act_response = await act.safeExecute(args)
+    return aiohttp.web.HTTPNotFound(text="not found")
 
-        self.write(dump_json({
-            "payload": act_response
-        }))
+async def storage_unit_file(request):
+    su_id = int(request.match_info.get('id', ''))
+    path = request.match_info.get('path', '')
 
-    def write_error(self, status_code, **kwargs):
-        exception = kwargs["exc_info"]
+    storage_unit = StorageUnit.ids(su_id)
+    if storage_unit == None:
+        return aiohttp.web.HTTPNotFound(text="not found")
 
-        self.set_header("Content-Type", "application/json")
-        self.set_status(400)
+    storage_path = storage_unit.dir_path()
+    path_to_file = storage_path / path
 
-        print(traceback.format_exc())
+    try:
+        path_to_file.resolve().relative_to(storage_path.resolve())
+    except (ValueError, RuntimeError):
+        raise aiohttp.web.HTTPForbidden(reason="access denied")
 
-        self.write(dump_json({
-            "error": {
-                "status_code": status_code,
-                "exception_name": exception[0].__name__,
-                "message": str(exception[1]),
-            }
-        }))
+    if not path_to_file.is_file():
+        raise aiohttp.web.HTTPNotFound()
 
-# WebSocket connection
-class WebSocketConnectionHandler(tornado.websocket.WebSocketHandler):
-    async def open(self):
-        logger.log(message=f"Started WebSocket connection", kind=logger.KIND_MESSAGE, section=logger.SECTION_WEB)
+    return aiohttp.web.FileResponse(str(path_to_file))
 
-        def __logger_hook(**kwargs):
-            components = kwargs["components"]
+async def upload(request):
+    reader = await request.multipart()
 
-            data = {
+    field = await reader.next()
+
+    name = await field.read(decode=True)
+    field = await reader.next()
+    filename = field.filename
+    size = 0
+
+    su = StorageUnit()
+    su.generate_hash()
+    su.upload_name = filename
+
+    with open(os.path.join('/spool/yarrr-media/mp3/', filename), 'wb') as f:
+        while True:
+            chunk = await field.read_chunk()  # 8192 bytes by default.
+            if not chunk:
+                break
+            size += len(chunk)
+            f.write(chunk)
+
+async def websocket_connection(request):
+    ws = aiohttp.web.WebSocketResponse()
+
+    logger.log(message=f"Started WebSocket connection", kind=logger.KIND_MESSAGE, section=logger.SECTION_WEB)
+
+    async def __logger_hook(**kwargs):
+        components = kwargs["components"]
+
+        try:
+            await ws.send_str(dump_json({
                 "type": "log",
                 "event_index": 0,
                 "payload": components
-            }
-
-            try:
-                self.write_message(dump_json(data))
-            except tornado.websocket.WebSocketClosedError as e:
-                pass
-
-        logger.add_hook("log", __logger_hook)
-
-    async def on_message(self, message):
-        message_json = None
-
-        try:
-            message_json = parse_json(message)
+            }))
         except Exception:
-            logger.log("Got incorrect message", section="Web!WebSockets", kind="message")
-            return
+            pass
 
-        message_type  = message_json.get("type")
-        message_index = message_json.get("event_index")
-        message_value = message_json.get("payload")
+    logger.add_hook("log", __logger_hook)
 
-        match message_type:
+    await ws.prepare(request)
+
+    async for msg in ws:
+        if msg.type != aiohttp.web.WSMsgType.TEXT:
+            continue
+
+        data = parse_json(msg.data)
+        MESSAGE_TYPE = data.get("type")
+        MESSAGE_INDEX = data.get("event_index")
+        MESSAGE_PAYLOAD = data.get("payload")
+
+        match (MESSAGE_TYPE):
             case "act":
-                args = message_value
+                res = await _act(MESSAGE_PAYLOAD)
 
-                act_name = args.get("i")
-                act_class = ActsRepository().getByName(plugin_name=act_name)
+                await ws.send_str(dump_json({
+                    "type": MESSAGE_TYPE,
+                    "event_index": MESSAGE_INDEX,
+                    "payload": res
+                }))
 
-                assert act_class != None, "act not found"
+    return ws
 
-                act = act_class()
-                response = None
-
-                try:
-                    assert act.canBeUsedAt("web"), "act cannot be used at web"
-
-                    response = await act.safeExecute(args)
-                    self.write_message(dump_json({
-                        "type": message_type,
-                        "event_index": message_index,
-                        "payload": response
-                    }))
-                except Exception as _e:
-                    logger.logException(_e, "Executables")
-
-                    self.write_message(dump_json({
-                        "type": message_type,
-                        "event_index": message_index,
-                        "payload": None,
-                        "error": {
-                            "status_code": 500,
-                            "exception_name": _e.__class__.__name__,
-                            "message": str(_e),
-                        }
-                    }))
-
-    def on_close(self):
-        for hook in logger.hooks("log"):
-            if hook.__name__ == "__logger_hook":
-                logger.remove_hook("log", hook)
-
-        logger.log("Connection was closed", section="Web!WebSockets", kind="message")
-
-def make_app():
-    return tornado.web.Application([
-        (r"/", MainPageHandler),
-        (r"/api/act", ActHandler),
-        (r"/ws", WebSocketConnectionHandler)
-    ], **settings)
+app.router.add_get('/', index)
+app.router.add_post('/api/act', act)
+app.router.add_post('/upload', upload)
+app.router.add_get('/su{id:.*}/{path:.*}', storage_unit_file)
+app.router.add_get('/static/{path:.*}', static)
+app.router.add_get('/ws', websocket_connection)
