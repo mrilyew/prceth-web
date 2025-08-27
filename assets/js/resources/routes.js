@@ -1,69 +1,10 @@
 import AboutController from "../controllers/AboutController.js"
-import ContentController from "../controllers/ContentController.js"
-import ExecutableController from "../controllers/ExecutableController.js"
-import LoggerController from "../controllers/LoggerController.js"
-import ConfigController from "../controllers/ConfigController.js"
 
 export const routes = [
     {
         'route': 'index',
         'class': (new AboutController),
         'method': 'main'
-    },
-    {
-        'route': 'stat',
-        'class': (new AboutController),
-        'method': 'stat'
-    },
-    {
-        'route': 'search',
-        'class': (new ContentController),
-        'method': 'main'
-    },
-    {
-        'route': 'cu',
-        'class': (new ContentController),
-        'method': 'page'
-    },
-    {
-        'route': 'exec',
-        'class': (new ExecutableController),
-        'method': 'list',
-        'loader': 'list_loader',
-    },
-    {
-        'route': 'add',
-        'class': (new ExecutableController),
-        'method': 'list',
-        'loader': 'list_loader',
-        'args': {
-            'cx': 'add',
-        }
-    },
-    {
-        'route': 'execute',
-        'class': (new ExecutableController),
-        'method': 'executable'
-    },
-    {
-        'route': 'test',
-        'class': (new AboutController),
-        'method': 'test'
-    },
-    {
-        'route': 'logs',
-        'class': (new LoggerController),
-        'method': 'index'
-    },
-    {
-        'route': 'config',
-        'class': (new ConfigController),
-        'method': 'index'
-    },
-    {
-        'route': 'not_found',
-        'class': (new AboutController),
-        'method': 'not_found'
     },
 ]
 
