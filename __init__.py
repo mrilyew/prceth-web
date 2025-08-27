@@ -1,7 +1,7 @@
 from resources.Consts import consts
 from app.App import config, logger
 from pathlib import Path
-from executables.acts.Executables.RunAct import RunAct
+from executables.list.Executables.ActsRun import Implementation as RunAct
 from db.Models.Content.StorageUnit import StorageUnit
 from utils.MainUtils import dump_json, parse_json
 import aiohttp, aiohttp_jinja2, jinja2
