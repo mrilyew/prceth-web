@@ -1,12 +1,12 @@
 import MessageBox from "./ui/MessageBox.js"
-import tr from "./langs/locale.js"
-import app from "./app.js"
+import tr from "./locale.js"
+import { common_connection } from "./app.js"
 import { escapeHtml } from "./utils/utils.js"
 
 export const api = new class {
     async act(params = {}, error_alert = true) {
         try {
-            const res = await app.ws_connection.act(params)
+            const res = await common_connection.act(params)
 
             console.log("API: ", params["i"], params, res)
 

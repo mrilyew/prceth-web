@@ -4,11 +4,10 @@ from pathlib import Path
 from executables.list.Executables.ActsRun import Implementation as RunAct
 from db.Models.Content.StorageUnit import StorageUnit
 from utils.MainUtils import dump_json, parse_json
-import aiohttp, aiohttp_jinja2, jinja2
+from aiohttp import web
 import os
 
 consts["context"] = "web"
-TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "assets")
 
 def check_node_modules():
@@ -24,12 +23,36 @@ def check_node_modules():
 
 check_node_modules()
 
-app = aiohttp.web.Application()
-aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
+app = web.Application()
 
-@aiohttp_jinja2.template('index.html')
 async def index(request):
-    return {'config': config}
+    template = """
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+            <script src="/static/js/node_modules/umbrellajs/umbrella.js"></script>
+            <script src="/static/js/node_modules/@andypf/json-viewer/dist/iife/index.js"></script>
+            <script type="text/javascript" src="/static/js/node_modules/dompurify/dist/purify.min.js"></script>
+            <script src="/static/js/node_modules/interactjs/dist/interact.js"></script>
+
+            <link rel="shortcut icon" href="/static/images/favicon.png" type="image/x-icon">
+            <link rel="stylesheet" href="/static/css/layout/palette.css">
+            <link rel="stylesheet" href="/static/css/layout/page.css">
+        </head>
+        <body>
+            <div id="app"></div>
+
+            <script type="module" src="/static/js/app.js"></script>
+        </body>
+    </html>
+
+    """
+    return web.Response(
+        text=template,
+        content_type='text/html')
 
 async def _act(args):
     act = RunAct()
@@ -41,7 +64,7 @@ async def act(request):
     args = await request.post()
     output = _act(args)
 
-    return aiohttp.web.json_response(text=dump_json({
+    return web.json_response(text=dump_json({
         "payload": output
     }))
 
@@ -50,9 +73,9 @@ async def static(request):
     static_file = os.path.join(STATIC_DIR, path)
 
     if os.path.exists(static_file) and os.path.isfile(static_file):
-        return aiohttp.web.FileResponse(static_file)
+        return web.FileResponse(static_file)
 
-    return aiohttp.web.HTTPNotFound(text="not found")
+    return web.HTTPNotFound(text="not found")
 
 async def storage_unit_file(request):
     su_id = int(request.match_info.get('id', ''))
@@ -60,7 +83,7 @@ async def storage_unit_file(request):
 
     storage_unit = StorageUnit.ids(su_id)
     if storage_unit == None:
-        return aiohttp.web.HTTPNotFound(text="not found")
+        return web.HTTPNotFound(text="not found")
 
     storage_path = storage_unit.dir_path()
     path_to_file = storage_path / path
@@ -68,12 +91,12 @@ async def storage_unit_file(request):
     try:
         path_to_file.resolve().relative_to(storage_path.resolve())
     except (ValueError, RuntimeError):
-        raise aiohttp.web.HTTPForbidden(reason="access denied")
+        raise web.HTTPForbidden(reason="access denied")
 
     if not path_to_file.is_file():
-        raise aiohttp.web.HTTPNotFound()
+        raise web.HTTPNotFound()
 
-    return aiohttp.web.FileResponse(str(path_to_file))
+    return web.FileResponse(str(path_to_file))
 
 async def upload(request):
     reader = await request.multipart()
@@ -98,7 +121,7 @@ async def upload(request):
             f.write(chunk)
 
 async def websocket_connection(request):
-    ws = aiohttp.web.WebSocketResponse()
+    ws = web.WebSocketResponse()
 
     logger.log(message=f"Started WebSocket connection", kind=logger.KIND_MESSAGE, section=logger.SECTION_WEB)
 
@@ -119,7 +142,7 @@ async def websocket_connection(request):
     await ws.prepare(request)
 
     async for msg in ws:
-        if msg.type != aiohttp.web.WSMsgType.TEXT:
+        if msg.type != web.WSMsgType.TEXT:
             continue
 
         data = parse_json(msg.data)

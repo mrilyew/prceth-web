@@ -28,7 +28,8 @@ export const router = new class {
         const _hash = this.url.getHash().replace('#', '')
         const route = (_hash == '' ? this.__findRoute("index") : this.__findRoute(_hash)) ?? this.__findRoute('not_found') // finding route for hash in url
 
-        if (route['args']) {
+        console.log(route)
+        if (route.args) {
             Object.entries(route['args']).forEach(el => {
                 this.url.setParam(el[0], el[1])
             })
@@ -36,20 +37,17 @@ export const router = new class {
 
         const controller = route.class
 
-        app.another_side.reset()
-        app.up()
-
         if (route['loader']) {
-            app.content_side.node.addClass("currently_switching")
+            app.content.node.addClass("currently_switching")
 
-            controller[route.loader](app.content_side)
+            controller[route.loader](app.content)
         } else {
-            controller.loader(app.content_side)
+            controller.loader(app.content)
         }
 
-        await controller[route.method](app.content_side)
+        await controller[route.method](app.content)
 
-        app.content_side.node.removeClass("currently_switching")
+        app.content.node.removeClass("currently_switching")
     }
 }
 

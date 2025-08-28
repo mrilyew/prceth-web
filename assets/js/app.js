@@ -4,93 +4,9 @@ import Container from "./ui/Container.js"
 import MessageBox from "./ui/MessageBox.js"
 import menu from "./resources/menu.js"
 import ApiError from "./exceptions/ApiError.js"
-import {proc_strtr, escapeHtml} from "./utils/utils.js"
+import CommonNavigation from "./ui/CommonNavigation.js"
 import FloatingWindow from "./ui/FloatingWindow.js"
-
-// class that represents page
-export const app = new class {
-    float_windows = []
-    messageboxes = []
-
-    main_template() {
-        u("body").append(`<div class="dimmer"></div>`)
-        u('#app').html(`
-            <div id="tabs"></div>
-        `)
-    }
-
-    constructor() {
-        this.main_template()
-        this.content_side = new Container('#app #page', true, {
-            "new_tab": (tab) => {
-                this.navigation.addTab(tab)
-            },
-            "close_tab": (tab) => {
-                this.navigation.removeTab(tab)
-            },
-            "title_change": (tab) => {
-                this.navigation.setTabTitle(tab)
-            },
-            "tab_focus": (tab) => {
-                this.navigation.focusTab(tab)
-            }
-        })
-
-        window.addEventListener("hashchange", async (event) => {
-            this.sidebar.hide()
-            await router.route(event.newURL)
-        })
-
-        window.addEventListener("DOMContentLoaded", async () => {
-            await router.route(location.href)
-        })
-    }
-}
-
-export const sidebar = new class {
-    show() {
-        if (u('#app #sidebar').hasClass("waiting_animation")) {
-            u('#app #sidebar_menu').addClass("moved")
-        }
-    }
-
-    hide() {
-        u('#app #sidebar').removeClass('waiting_animation')
-        u('#app #sidebar_menu').removeClass("moved")
-    }
-}
-
-export const navigation = new class {
-    addTab(tab) {
-        u('#status-bar #_place').append(`<a data-id="${tab.id}" class="tab">
-            <span class="tab_name"></span>
-            <div id="close_btn">x</div>
-        </a>`)
-        this.setTabTitle(tab)
-    }
-
-    removeTab(tab) {
-        if (tab) {
-            u(`#status-bar .tab[data-id="${tab.id}"]`).remove()
-        }
-    }
-
-    setTabTitle(tab) {
-        document.title = tab.title + " - " + window.cfg['ui.name']
-
-        u(`#status-bar .tab[data-id="${tab.id}"] .tab_name`).html(proc_strtr(escapeHtml(tab.title), 30))
-    }
-
-    focusTab(tab) {
-        u('#status-bar a').removeClass('selected')
-
-        if (tab) {
-            document.title = tab.title + " - " + window.cfg['ui.name']
-
-            u(`#status-bar a[data-id="${tab.id}"]`).addClass('selected')
-        }
-    }
-}
+import Config from "./models/Config.js"
 
 export const common_connection = new class {
     ws = null
@@ -121,7 +37,6 @@ export const common_connection = new class {
             switch(event_type) {
                 case "log":
                     console.log(`Logger message: `, event_data)
-                    app.logs.push(event_data)
 
                     break
                 case "act":
@@ -183,5 +98,74 @@ export const common_connection = new class {
         })
     }
 }
+
+// class that represents page
+export const app = new class {
+    float_windows = []
+    messageboxes = []
+
+    main_template() {
+        u("body").append(`<div class="dimmer"></div>`)
+        u('#app').html(`
+            <div id="bg">
+                <div id="bg_1"></div>
+                <div id="bg_2"></div>
+            </div>
+            <div id="bg_l_2">
+                <div id="bg_1"></div>
+            </div>
+            <div id="__page">
+                <div id="tabs">
+                    <div id="square"></div>
+                    <div id="items_list">
+                        <div id="items"></div>
+                        <div id="items_add">+</div>
+                    </div>
+                </div>
+                <div id="header">
+                    <span>Extraction tool</span>
+                </div>
+                <div id="content">
+                    <div id="content_containment">
+                        <div id="inserted"></div>
+                    </div>
+                </div>
+            </div>
+        `)
+    }
+
+    async _constructor() {
+        this.main_template()
+        this.config = new Config()
+        await this.config.get_items()
+
+        const navigation = new CommonNavigation()
+
+        this.content = new Container('#app #content #inserted', true, {
+            "new_tab": (tab) => {
+                navigation.addTab(tab)
+            },
+            "close_tab": (tab) => {
+                navigation.removeTab(tab)
+            },
+            "title_change": (tab) => {
+                navigation.setTabTitle(tab)
+            },
+            "tab_focus": (tab) => {
+                navigation.focusTab(tab)
+            }
+        })
+
+        window.addEventListener("hashchange", async (event) => {
+            await router.route(event.newURL)
+        })
+    }
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+    await app._constructor()
+
+    await router.route(location.href)
+})
 
 export default app
